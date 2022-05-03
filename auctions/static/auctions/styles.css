@@ -1,0 +1,49 @@
+body {
+    padding: 10px;
+    background-color: lavenderblush;
+}
+
+table, tr, td {
+    background-color: bisque;
+    border: 2px solid black;
+    width: 650px;
+}
+
+td, th {
+    padding: 10px;
+    width: auto;
+    text-align: center;
+}
+
+tr {
+    vertical-align: top;
+    width: auto;
+}
+
+#id_item, #id_starting_bid, #id_description, #id_img_url, #id_category {
+    width: 100%;
+    border-radius: 5px;
+    background-color: lavenderblush;
+}
+
+form {
+    width: auto;
+}
+
+div {
+    padding: 5px;;
+}
+
+img {
+    float: center;
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+}
+
+.img {
+    float: center;
+    width: 400px;
+    height: 400px;
+    object-fit: cover;
+}
