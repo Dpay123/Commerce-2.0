@@ -22,6 +22,22 @@ def item(request, item):
     }
     return render(request, "auctions/item.html", context)
 
+def categories(request):
+    category_list = []
+    for i in CATEGORY:
+        category_list.append(i[0])
+    context = {
+        "categories": category_list
+    }
+    return render(request, "auctions/categories.html", context)
+
+def search_category(request, category):
+    listings = Listing.objects.filter(category = category)
+    context = {
+        "listings": listings
+    }
+    return render(request, "auctions/index.html", context)
+
 def watched(request):
     user = request.user
     watched_items = Watchlist.objects.filter(user = user)

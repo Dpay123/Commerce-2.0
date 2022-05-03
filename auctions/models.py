@@ -5,17 +5,16 @@ from django.db import models
 class User(AbstractUser):
     pass
 
-# TODO: Class for Listing, Bids, Comments
+CATEGORY = {
+    ("Home", "Home"),
+    ("Electronics", "Electronics"),
+    ("Toys", "Toys"),
+    ("Fashion", "Fashion"),
+    ("Other", "Other")
+}
 
 # one to many: 1 user can have many listings
 class Listing(models.Model):
-    CATEGORY = {
-        ("Home", "Home"),
-        ("Electronics", "Electronics"),
-        ("Toys", "Toys"),
-        ("Fashion", "Fashion")
-    }
-
     item = models.CharField(null=True, max_length=200)
     description = models.TextField(null=True, blank=True, max_length=500)
     starting_bid = models.IntegerField(null=True)

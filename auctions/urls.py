@@ -10,5 +10,6 @@ urlpatterns = [
     path("create", views.create, name="create"),
     path("item/<str:item>", views.item, name="item"),
     path("watchlist", views.watched, name="watchlist"),
-    # path("categories", views.categories, name="categories")
+    path("categories", views.categories, name="categories"),
+    path("categories/<str:category>", views.search_category, name="search category")
 ]
