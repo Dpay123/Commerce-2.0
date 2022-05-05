@@ -4,6 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.forms import ModelForm, HiddenInput
+from pytz import common_timezones
 
 from .models import *
 
@@ -13,14 +14,74 @@ class NewListingForm(ModelForm):
         fields = ['item', 'description', 'starting_bid', 'category', 'img_url', 'seller']
         widgets = {'seller': HiddenInput()}
 
-def item(request, item):
-    item_lookup = Listing.objects.get(item = item)
+class NewBidForm(ModelForm):
+    class Meta:
+        model = Bid
+        fields = ['bid']
+
+class NewCommentForm(ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['comment']
+
+def listing(request, listing_id):
+    listing = Listing.objects.get(pk=listing_id)
     comments = Comment.objects.all()
-    context = {
-        "item": item_lookup,
-        "comments": comments
-    }
-    return render(request, "auctions/item.html", context)
+    if request.method == "POST":
+        user = User.objects.get(username=request.user)
+        if request.POST.get("button") == "watch":
+            if not user.watchlist.filter(listing = listing):
+                watchlist = Watchlist()
+                watchlist.user = user
+                watchlist.item = listing
+                watchlist.save()
+            else:
+                user.watchlist.filter(listing=listing).delete()
+            return HttpResponseRedirect(reverse('item', args=(listing.id,)))
+        else:
+            bid = float(request.POST['bid'])
+            if is_valid(bid, listing):
+                form = NewBidForm(request.POST)
+                newBid = form.save(commit=False)
+                newBid.bidding_on = listing
+                newBid.bid = bid
+                newBid.bidder = user
+                newBid.save()
+                listing.current_bid = bid
+                listing.save()
+                context = {
+                    "listing": listing,
+                    "comments": comments,
+                    "bid_form": NewBidForm(),
+                    "comment_form": NewCommentForm()
+                }
+                return render(request, "auctions/listing.html", context)
+            else:
+                error = "Bid must exceed current"
+                context = {
+                    "listing": listing,
+                    "comments": comments,
+                    "error": error,
+                    "bid_form": NewBidForm(),
+                    "comment_form": NewCommentForm()
+                }
+                return render(request, "auctions/listing.html", context)
+    else:
+        context = {
+            "listing": listing,
+            "comments": comments,
+            "bid_form": NewBidForm(),
+            "comment_form": NewCommentForm()
+        }
+        return render(request, "auctions/listing.html", context)
+
+
+def is_valid(bid, listing):
+    if bid >= listing.starting_bid and (listing.current_bid is None or bid > listing.current_bid):
+        return True
+    else:
+        return False
+
 
 def categories(request):
     category_list = []

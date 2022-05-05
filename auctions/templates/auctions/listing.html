@@ -1,0 +1,58 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <table>
+        <tr>
+            <th colspan="2"><h2>{{ listing.item }}</h2></th>
+        </tr>
+        <tr>
+            <th colspan="2"><img class='img' src="{{ listing.img_url }}"></th>
+        </tr>
+        <tr>
+            <th>Description: </th>
+            <td>{{ listing.description }}</td>
+        </tr>
+        <tr>
+            <th>Starting Bid: </th>
+            <td>{{ listing.starting_bid }}</td>
+        </tr>
+        <tr>
+            <th>Current Bid: </th>
+            <td>${{ listing.current_bid }}</td>
+        </tr>
+        <tr>
+            <th>Category: </th>
+            <td>{{ listing.category }}</td>
+        </tr>
+        <tr>
+            <th colspan="2"><button type="button" id="watch"><b>Add to Watchlist</b></button></th>
+        </tr>
+
+        <form class="bid" method="POST" action="{% url 'listing' listing.id %}">
+            {% csrf_token %}
+            {{ bid_form }}
+        <tr>
+            <td colspan="2">
+                <input type="submit" value="Submit Bid">
+                <div class="error">{{ error }}</div>
+            </td>
+        </tr>
+        </form>
+    </table>
+    <div></div>
+    <table>
+        <tr>
+            <th colspan="2">Comments</th>
+        </tr>
+        {% for comment in comments %}
+        <tr>
+            <th>{{ comment.author }}</th> 
+            <td colspan="2">
+                {{ comment.comment }}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    
+    
+{% endblock %}

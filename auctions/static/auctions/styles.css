@@ -20,6 +20,11 @@ tr {
     width: auto;
 }
 
+.error {
+    font-weight: bold;
+    color: red;
+}
+
 #id_item, #id_starting_bid, #id_description, #id_img_url, #id_category {
     width: 100%;
     border-radius: 5px;
