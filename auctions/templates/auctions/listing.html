@@ -14,19 +14,23 @@
         </tr>
         <tr>
             <th>Starting Bid: </th>
-            <td>{{ listing.starting_bid }}</td>
+            <td>${{ listing.starting_bid | floatformat:2 }}</td>
         </tr>
         <tr>
             <th>Current Bid: </th>
-            <td>${{ listing.current_bid }}</td>
+            <td>${{ listing.current_bid | floatformat:2 }}</td>
         </tr>
         <tr>
             <th>Category: </th>
             <td>{{ listing.category }}</td>
         </tr>
+
+        <form id="watch" method="POST" action="{% url 'listing' listing.id %}">
+            {% csrf_token %}
         <tr>
-            <th colspan="2"><button type="button" id="watch"><b>Add to Watchlist</b></button></th>
+            <th colspan="2"><button type="submit" name="button" form="watch" value="Watchlist"><b>Add to Watchlist</b></button></th>
         </tr>
+        </form>
 
         <form class="bid" method="POST" action="{% url 'listing' listing.id %}">
             {% csrf_token %}
@@ -38,6 +42,7 @@
             </td>
         </tr>
         </form>
+
     </table>
     <div></div>
     <table>

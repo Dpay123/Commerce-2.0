@@ -33,8 +33,8 @@ class Bid(models.Model):
     bid = models.FloatField()
 
 class Watchlist(models.Model):
-    user = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
-    item = models.ForeignKey(Listing, null=True, on_delete=models.CASCADE, related_name="watched")
+    user = models.ForeignKey(User, null=True, on_delete=models.CASCADE, related_name="watchlist")
+    listing = models.ForeignKey(Listing, null=True, on_delete=models.CASCADE, related_name="listings")
 
 # one to many: 1 listing can have many comments
 class Comment(models.Model):

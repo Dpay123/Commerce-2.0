@@ -24,20 +24,25 @@ class NewCommentForm(ModelForm):
         model = Comment
         fields = ['comment']
 
+class NewWatchForm(ModelForm):
+    class Meta:
+        model = Watchlist
+        fields = ['user', 'listing']
+
 def listing(request, listing_id):
     listing = Listing.objects.get(pk=listing_id)
     comments = Comment.objects.all()
     if request.method == "POST":
         user = User.objects.get(username=request.user)
-        if request.POST.get("button") == "watch":
+        if request.POST.get("button") == "Watchlist":
             if not user.watchlist.filter(listing = listing):
                 watchlist = Watchlist()
                 watchlist.user = user
-                watchlist.item = listing
+                watchlist.listing = listing
                 watchlist.save()
             else:
                 user.watchlist.filter(listing=listing).delete()
-            return HttpResponseRedirect(reverse('item', args=(listing.id,)))
+            return HttpResponseRedirect(reverse('listing', args=(listing.id,)))
         else:
             bid = float(request.POST['bid'])
             if is_valid(bid, listing):
@@ -53,6 +58,7 @@ def listing(request, listing_id):
                     "listing": listing,
                     "comments": comments,
                     "bid_form": NewBidForm(),
+                    "watch_form": NewWatchForm(),
                     "comment_form": NewCommentForm()
                 }
                 return render(request, "auctions/listing.html", context)
@@ -63,6 +69,7 @@ def listing(request, listing_id):
                     "comments": comments,
                     "error": error,
                     "bid_form": NewBidForm(),
+                    "watch_form": NewWatchForm(),
                     "comment_form": NewCommentForm()
                 }
                 return render(request, "auctions/listing.html", context)
@@ -71,6 +78,7 @@ def listing(request, listing_id):
             "listing": listing,
             "comments": comments,
             "bid_form": NewBidForm(),
+            "watch_form": NewWatchForm(),
             "comment_form": NewCommentForm()
         }
         return render(request, "auctions/listing.html", context)
@@ -99,9 +107,9 @@ def search_category(request, category):
     }
     return render(request, "auctions/index.html", context)
 
-def watched(request):
+def watchlist(request):
     user = request.user
-    watched_items = Watchlist.objects.filter(user = user)
+    watched_items = user.watchlist.filter(user_id = user)
     context = {
         "watchlist": watched_items
     }
