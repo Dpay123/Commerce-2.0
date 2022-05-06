@@ -4,6 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.forms import ModelForm, HiddenInput
+from matplotlib import widgets
 from pytz import common_timezones
 
 from .models import *
@@ -20,6 +21,7 @@ class NewBidForm(ModelForm):
         fields = ['bid']
 
 class NewCommentForm(ModelForm):
+
     class Meta:
         model = Comment
         fields = ['comment']
@@ -43,6 +45,22 @@ def listing(request, listing_id):
             else:
                 user.watchlist.filter(listing=listing).delete()
             return HttpResponseRedirect(reverse('listing', args=(listing.id,)))
+        elif request.POST.get("button") == "comment":
+            form = NewCommentForm(request.POST)
+            if form.is_valid():
+                new_comment = form.save(commit=False)
+                new_comment.author = user
+                new_comment.auction = listing
+                new_comment.save()
+                context = {
+                    "listing": listing,
+                    "comments": comments,
+                    "bid_form": NewBidForm(),
+                    "watch_form": NewWatchForm(),
+                    "comment_form": NewCommentForm()
+                }
+                return render(request, "auctions/listing.html", context)
+
         else:
             bid = float(request.POST['bid'])
             if is_valid(bid, listing):
