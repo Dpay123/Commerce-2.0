@@ -28,9 +28,16 @@
 
         <form id="watch" method="POST" action="{% url 'listing' listing.id %}">
             {% csrf_token %}
+        {% if watched %}
+        <tr>
+            <th colspan="2"><button type="submit" name="button" form="watch" value="Watchlist"><b>Remove from Watchlist</b></button></th>
+        </tr>
+        {% endif %}
+        {% if not watched %}
         <tr>
             <th colspan="2"><button type="submit" name="button" form="watch" value="Watchlist"><b>Add to Watchlist</b></button></th>
         </tr>
+        {% endif %}
         </form>
     </table>
 

@@ -31,13 +31,34 @@ class NewWatchForm(ModelForm):
         model = Watchlist
         fields = ['user', 'listing']
 
+def check_if_watched(user, listing):
+    if not user.watchlist.filter(listing = listing):
+        return False
+    else:
+        return True
+
+def is_valid(bid, listing):
+    if bid > listing.starting_bid and (listing.current_bid is None or bid > listing.current_bid):
+        return True
+    else:
+        return False
+
 def listing(request, listing_id):
     listing = Listing.objects.get(pk=listing_id)
     comments = Comment.objects.all()
+    user = User.objects.get(username=request.user)
+    watched = check_if_watched(user, listing)
+    context = {
+        "listing": listing,
+        "comments": comments,
+        "bid_form": NewBidForm(),
+        "watch_form": NewWatchForm(),
+        "comment_form": NewCommentForm(),
+        "watched": watched
+    }
     if request.method == "POST":
-        user = User.objects.get(username=request.user)
         if request.POST.get("button") == "Watchlist":
-            if not user.watchlist.filter(listing = listing):
+            if not watched:
                 watchlist = Watchlist()
                 watchlist.user = user
                 watchlist.listing = listing
@@ -52,15 +73,7 @@ def listing(request, listing_id):
                 new_comment.author = user
                 new_comment.auction = listing
                 new_comment.save()
-                context = {
-                    "listing": listing,
-                    "comments": comments,
-                    "bid_form": NewBidForm(),
-                    "watch_form": NewWatchForm(),
-                    "comment_form": NewCommentForm()
-                }
                 return render(request, "auctions/listing.html", context)
-
         else:
             bid = float(request.POST['bid'])
             if is_valid(bid, listing):
@@ -72,42 +85,21 @@ def listing(request, listing_id):
                 newBid.save()
                 listing.current_bid = bid
                 listing.save()
-                context = {
-                    "listing": listing,
-                    "comments": comments,
-                    "bid_form": NewBidForm(),
-                    "watch_form": NewWatchForm(),
-                    "comment_form": NewCommentForm()
-                }
                 return render(request, "auctions/listing.html", context)
             else:
                 error = "Bid must exceed current"
-                context = {
+                context2 = {
                     "listing": listing,
                     "comments": comments,
-                    "error": error,
                     "bid_form": NewBidForm(),
                     "watch_form": NewWatchForm(),
-                    "comment_form": NewCommentForm()
+                    "comment_form": NewCommentForm(),
+                    "watched": watched,
+                    "error": error
                 }
-                return render(request, "auctions/listing.html", context)
+                return render(request, "auctions/listing.html", context2)
     else:
-        context = {
-            "listing": listing,
-            "comments": comments,
-            "bid_form": NewBidForm(),
-            "watch_form": NewWatchForm(),
-            "comment_form": NewCommentForm()
-        }
         return render(request, "auctions/listing.html", context)
-
-
-def is_valid(bid, listing):
-    if bid >= listing.starting_bid and (listing.current_bid is None or bid > listing.current_bid):
-        return True
-    else:
-        return False
-
 
 def categories(request):
     category_list = []
