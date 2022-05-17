@@ -13,6 +13,7 @@
             <th>Description: </th>
             <td>{{ listing.description }}</td>
         </tr>
+        
         <tr>
             <th>Starting Bid: </th>
             <td>${{ listing.starting_bid | floatformat:2 }}</td>
@@ -26,19 +27,32 @@
             <td>{{ listing.category }}</td>
         </tr>
 
-        <form id="watch" method="POST" action="{% url 'listing' listing.id %}">
-            {% csrf_token %}
-        {% if watched %}
-        <tr>
-            <th colspan="2"><button type="submit" name="button" form="watch" value="Watchlist"><b>Remove from Watchlist</b></button></th>
-        </tr>
-        {% endif %}
-        {% if not watched %}
-        <tr>
-            <th colspan="2"><button type="submit" name="button" form="watch" value="Watchlist"><b>Add to Watchlist</b></button></th>
-        </tr>
-        {% endif %}
+        {% if not seller %}
+        <form id="watch" method="POST" action="{% url 'listing' listing.id %}">{% csrf_token %}
+
+            {% if watched %}
+            <tr>
+                <th colspan="2"><button type="submit" name="button" form="watch" value="Watchlist">Remove from Watchlist</button></th>
+            </tr>
+            {% endif %}
+            {% if not watched %}
+            <tr>
+                <th colspan="2"><button type="submit" name="button" form="watch" value="Watchlist">Add to Watchlist</button></th>
+            </tr>
+            {% endif %}
         </form>
+        {% endif %}
+        
+        {% if seller %}
+        <form id="close" method="POST" action="{% url 'listing' listing.id %}">{% csrf_token %}
+
+            <tr>
+                <th colspan="2"><button type="submit" name="button" value="Close">Close Auction</button></th>
+            </tr>
+
+        </form>
+        {% endif %}
+        
     </table>
 
     <div></div>
