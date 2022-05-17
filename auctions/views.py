@@ -34,8 +34,12 @@ class NewWatchForm(ModelForm):
 def check_if_watched(user, listing):
     if not user.watchlist.filter(listing = listing):
         return False
-    else:
+    return True
+
+def check_if_seller(user, listing):
+    if user == listing.seller:
         return True
+    return False
 
 def is_valid(bid, listing):
     if bid > listing.starting_bid and (listing.current_bid is None or bid > listing.current_bid):
@@ -48,16 +52,20 @@ def listing(request, listing_id):
     comments = Comment.objects.all()
     user = User.objects.get(username=request.user)
     watched = check_if_watched(user, listing)
+    seller = check_if_seller(user, listing)
     context = {
         "listing": listing,
         "comments": comments,
         "bid_form": NewBidForm(),
         "watch_form": NewWatchForm(),
         "comment_form": NewCommentForm(),
-        "watched": watched
+        "watched": watched,
+        "seller": seller
     }
     if request.method == "POST":
-        if request.POST.get("button") == "Watchlist":
+        if request.POST.get("button") == "Close":
+            return HttpResponseRedirect(reverse('listing', args=(listing.id,)))
+        elif request.POST.get("button") == "Watchlist":
             if not watched:
                 watchlist = Watchlist()
                 watchlist.user = user
@@ -101,6 +109,7 @@ def listing(request, listing_id):
     else:
         return render(request, "auctions/listing.html", context)
 
+ 
 def categories(request):
     category_list = []
     for i in CATEGORY:
