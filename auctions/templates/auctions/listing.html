@@ -37,7 +37,10 @@
             {% endif %}
             {% if not watched %}
             <tr>
-                <th colspan="2"><button type="submit" name="button" form="watch" value="Watchlist">Add to Watchlist</button></th>
+                <th colspan="2">
+                    <button type="submit" name="button" form="watch" value="Watchlist">Add to Watchlist</button>
+                    <div class="error">{{ error }}</div>
+                </th>
             </tr>
             {% endif %}
         </form>
@@ -46,9 +49,11 @@
         {% if seller %}
         <form id="close" method="POST" action="{% url 'listing' listing.id %}">{% csrf_token %}
 
+            {% if not closed %}
             <tr>
                 <th colspan="2"><button type="submit" name="button" value="Close">Close Auction</button></th>
             </tr>
+            {% endif %}
 
         </form>
         {% endif %}
@@ -57,22 +62,46 @@
 
     <div></div>
 
+    
+    {% if closed and not winner %}
+    <table>
+        <tr>
+            <th colspan="2" class="error">This listing has been closed by the seller</th>
+        </tr>
+    </table>
+    {% elif closed and winner %}
+    <table>
+        <tr>
+            <th colspan="2" class="error">You have won this auction!</th>
+        </tr>
+    </table>
+    {% endif %}
+
+    {% if not closed %}
     <table>
         <tr>
             <th colspan="2">Submit a bid for this item</th>
         </tr>
+        {% if seller %}
+        <tr>
+            <td colspan="2" class="error">As seller, you cannot bid on this item</td>
+        </tr>
+        {% endif %}
+
+        {% if not seller %}
         <form class="bid" method="POST" action="{% url 'listing' listing.id %}">
             {% csrf_token %}
             {{ bid_form }}
         <tr>
             <td colspan="2">
                 <input type="submit" value="Submit Bid">
-                <div class="error">{{ error }}</div>
+                <div class="error">{{ bid_error }}</div>
             </td>
         </tr>
         </form>
-
+        {% endif %}
     </table>
+
     <div></div>
     <table>
         <tr>
@@ -87,10 +116,12 @@
         <tr>
             <td colspan="2">
                 <button name="button" form="comment" type="submit" value="comment">Leave Comment</button>
+                <div class="error">{{ error }}</div>
             </td>
         </tr>
         </form>
     </table>
+    {% endif %}
 
     <div></div>
 

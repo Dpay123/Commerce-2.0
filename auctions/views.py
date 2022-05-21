@@ -1,4 +1,6 @@
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
@@ -41,6 +43,16 @@ def check_if_seller(user, listing):
         return True
     return False
 
+def check_if_winner(user, listing):
+    try:
+        if not check_if_seller(user, listing):
+            highest_bid = Bid.objects.get(bidding_on=listing, bid=listing.current_bid)
+            return highest_bid.bidder == user
+        else:
+            return False
+    except ObjectDoesNotExist:
+        return False
+
 def is_valid(bid, listing):
     if bid > listing.starting_bid and (listing.current_bid is None or bid > listing.current_bid):
         return True
@@ -50,9 +62,17 @@ def is_valid(bid, listing):
 def listing(request, listing_id):
     listing = Listing.objects.get(pk=listing_id)
     comments = Comment.objects.all()
-    user = User.objects.get(username=request.user)
-    watched = check_if_watched(user, listing)
-    seller = check_if_seller(user, listing)
+    # if logged in
+    if request.user.is_authenticated:
+        user = User.objects.get(username=request.user)
+        watched = check_if_watched(user, listing)
+        seller = check_if_seller(user, listing)
+        winner = check_if_winner(user, listing)
+    else:
+        watched = False
+        seller = False
+        winner = False
+
     context = {
         "listing": listing,
         "comments": comments,
@@ -60,10 +80,15 @@ def listing(request, listing_id):
         "watch_form": NewWatchForm(),
         "comment_form": NewCommentForm(),
         "watched": watched,
-        "seller": seller
+        "seller": seller,
+        "closed": listing.closed,
+        "winner": winner
     }
-    if request.method == "POST":
+
+    if request.method == "POST" and request.user.is_authenticated:
         if request.POST.get("button") == "Close":
+            listing.closed = True
+            listing.save()
             return HttpResponseRedirect(reverse('listing', args=(listing.id,)))
         elif request.POST.get("button") == "Watchlist":
             if not watched:
@@ -95,17 +120,15 @@ def listing(request, listing_id):
                 listing.save()
                 return render(request, "auctions/listing.html", context)
             else:
-                error = "Bid must exceed current"
-                context2 = {
-                    "listing": listing,
-                    "comments": comments,
-                    "bid_form": NewBidForm(),
-                    "watch_form": NewWatchForm(),
-                    "comment_form": NewCommentForm(),
-                    "watched": watched,
-                    "error": error
-                }
-                return render(request, "auctions/listing.html", context2)
+                context["bid_error"] = "Bid must exceed current"
+                return render(request, "auctions/listing.html", context)
+
+    # if POST but not logged in
+    elif request.method == 'POST' and not request.user.is_authenticated:
+        context["error"] = "You must be logged in"
+        return render(request, "auctions/listing.html", context)
+
+    # if GET request
     else:
         return render(request, "auctions/listing.html", context)
 
@@ -126,6 +149,7 @@ def search_category(request, category):
     }
     return render(request, "auctions/index.html", context)
 
+@login_required
 def watchlist(request):
     user = request.user
     watched_items = user.watchlist.filter(user_id = user)
@@ -135,12 +159,13 @@ def watchlist(request):
     return render(request, "auctions/watchlist.html", context)
 
 def index(request):
-    listings = Listing.objects.all()
+    listings = Listing.objects.filter()
     context = {
         "listings": listings
     }
     return render(request, "auctions/index.html", context)
 
+@login_required
 def create(request):
     if request.method == "GET":
         form = NewListingForm()
