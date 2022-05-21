@@ -22,6 +22,7 @@ class Listing(models.Model):
     category = models.CharField(null=True, blank=True, max_length=64, choices=CATEGORY)
     img_url = models.URLField(blank=True)
     seller = models.ForeignKey(User, on_delete=models.CASCADE)
+    closed = models.BooleanField(null=True, default=False)
 
     def __str__(self):
         return f"{self.item}"

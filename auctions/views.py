@@ -1,5 +1,6 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
@@ -42,6 +43,16 @@ def check_if_seller(user, listing):
         return True
     return False
 
+def check_if_winner(user, listing):
+    try:
+        if not check_if_seller(user, listing):
+            highest_bid = Bid.objects.get(bidding_on=listing, bid=listing.current_bid)
+            return highest_bid.bidder == user
+        else:
+            return False
+    except ObjectDoesNotExist:
+        return False
+
 def is_valid(bid, listing):
     if bid > listing.starting_bid and (listing.current_bid is None or bid > listing.current_bid):
         return True
@@ -56,9 +67,11 @@ def listing(request, listing_id):
         user = User.objects.get(username=request.user)
         watched = check_if_watched(user, listing)
         seller = check_if_seller(user, listing)
+        winner = check_if_winner(user, listing)
     else:
         watched = False
         seller = False
+        winner = False
 
     context = {
         "listing": listing,
@@ -67,11 +80,15 @@ def listing(request, listing_id):
         "watch_form": NewWatchForm(),
         "comment_form": NewCommentForm(),
         "watched": watched,
-        "seller": seller
+        "seller": seller,
+        "closed": listing.closed,
+        "winner": winner
     }
 
     if request.method == "POST" and request.user.is_authenticated:
         if request.POST.get("button") == "Close":
+            listing.closed = True
+            listing.save()
             return HttpResponseRedirect(reverse('listing', args=(listing.id,)))
         elif request.POST.get("button") == "Watchlist":
             if not watched:
@@ -103,7 +120,7 @@ def listing(request, listing_id):
                 listing.save()
                 return render(request, "auctions/listing.html", context)
             else:
-                context["error"] = "Bid must exceed current"
+                context["bid_error"] = "Bid must exceed current"
                 return render(request, "auctions/listing.html", context)
 
     # if POST but not logged in
@@ -142,7 +159,7 @@ def watchlist(request):
     return render(request, "auctions/watchlist.html", context)
 
 def index(request):
-    listings = Listing.objects.all()
+    listings = Listing.objects.filter()
     context = {
         "listings": listings
     }
