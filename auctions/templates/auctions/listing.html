@@ -37,7 +37,10 @@
             {% endif %}
             {% if not watched %}
             <tr>
-                <th colspan="2"><button type="submit" name="button" form="watch" value="Watchlist">Add to Watchlist</button></th>
+                <th colspan="2">
+                    <button type="submit" name="button" form="watch" value="Watchlist">Add to Watchlist</button>
+                    <div class="error">{{ error }}</div>
+                </th>
             </tr>
             {% endif %}
         </form>
@@ -61,6 +64,13 @@
         <tr>
             <th colspan="2">Submit a bid for this item</th>
         </tr>
+        {% if seller %}
+        <tr>
+            <td colspan="2" class="error">As seller, you cannot bid on this item</td>
+        </tr>
+        {% endif %}
+
+        {% if not seller %}
         <form class="bid" method="POST" action="{% url 'listing' listing.id %}">
             {% csrf_token %}
             {{ bid_form }}
@@ -71,6 +81,7 @@
             </td>
         </tr>
         </form>
+        {% endif %}
 
     </table>
     <div></div>
@@ -87,6 +98,7 @@
         <tr>
             <td colspan="2">
                 <button name="button" form="comment" type="submit" value="comment">Leave Comment</button>
+                <div class="error">{{ error }}</div>
             </td>
         </tr>
         </form>
