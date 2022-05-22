@@ -33,6 +33,9 @@ class Bid(models.Model):
     bidding_on = models.ForeignKey(Listing, null=True, on_delete=models.CASCADE)
     bid = models.FloatField()
 
+    def __str__(self):
+        return f"{self.bidding_on} - {self.bid} - {self.bidder}"
+
 class Watchlist(models.Model):
     user = models.ForeignKey(User, null=True, on_delete=models.CASCADE, related_name="watchlist")
     listing = models.ForeignKey(Listing, null=True, on_delete=models.CASCADE, related_name="listings")
