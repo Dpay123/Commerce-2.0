@@ -61,7 +61,7 @@ def is_valid(bid, listing):
 
 def listing(request, listing_id):
     listing = Listing.objects.get(pk=listing_id)
-    comments = Comment.objects.all()
+    comments = Comment.objects.filter(auction=listing)
     if listing.current_bid == None:
         listing.current_bid = listing.starting_bid
     # if logged in
