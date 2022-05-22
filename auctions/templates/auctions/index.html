@@ -2,17 +2,29 @@
 
 {% block body %}
     <h2>Active Listings</h2>
-    <table>
+
+    <div class="container-fluid">
+        <div class="row">
         {% for listing in listings %}
-        <tr>
-            <td><h3><a href="{% url 'listing' listing.id %}">{{ listing.item }}</a></h3></td>
-            <td><h5>Listing Price: ${{ listing.starting_bid | floatformat:2 }}</h5></td>
-            <td><h5>Current Bid: ${{ listing.current_bid | floatformat:2 }}</h5></td>
-        </tr>
-        <tr>
-            <td><img src="{{ listing.img_url }}"></td>
-            <td colspan="2">{{ listing.description }}</td>
-        </tr>
+        <div class="card">
+            <a href="{% url 'listing' listing.id %}" class="card-link"></a>
+            <img class="card-img-top" src="{{ listing.img_url }}">
+            <div class="card-body">
+                <h4 class="card-title">{{ listing.item }}</a></h4>
+                <h6 class="card-subtitle mb-2 text-muted">{{ listing.category }}</h6>
+                <div><p class="card-text">{{ listing.description }}</p></div>
+            </div>
+            <div class="card-footer">
+                <div>Listing Price: ${{ listing.starting_bid | floatformat:2 }}</div>
+                {% if not listing.closed %}
+                <div>Current Bid: ${{ listing.current_bid | floatformat:2 }}</div>
+                {% else %}
+                <div class="error"><i class="error">Sold!</i></div>
+                {% endif %}
+            </div>
+        </div>
         {% endfor %}
-    </table>
+        </div>
+    </div>
+
 {% endblock %}

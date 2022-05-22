@@ -62,6 +62,8 @@ def is_valid(bid, listing):
 def listing(request, listing_id):
     listing = Listing.objects.get(pk=listing_id)
     comments = Comment.objects.all()
+    if listing.current_bid == None:
+        listing.current_bid = listing.starting_bid
     # if logged in
     if request.user.is_authenticated:
         user = User.objects.get(username=request.user)
@@ -153,6 +155,9 @@ def search_category(request, category):
 def watchlist(request):
     user = request.user
     watched_items = user.watchlist.filter(user_id = user)
+    for listing in watched_items:
+        if listing.listing.current_bid == None:
+            listing.listing.current_bid = listing.listing.starting_bid
     context = {
         "watchlist": watched_items
     }
@@ -160,6 +165,9 @@ def watchlist(request):
 
 def index(request):
     listings = Listing.objects.filter()
+    for listing in listings:
+        if listing.current_bid == None:
+            listing.current_bid = listing.starting_bid
     context = {
         "listings": listings
     }

@@ -1,6 +1,28 @@
 body {
-    padding: 10px;
+    padding: 15px;
     background-color: lavenderblush;
+}
+
+.card {
+    position: relative;
+    width: 240px;
+    border: 2px solid black;
+    border-radius: 5px;
+    margin: 5px;
+}
+
+.card-link {
+    position: absolute; 
+    top: 0; 
+    right: 0; 
+    bottom: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%;
+}
+
+.card-footer {
+    font-weight: bold;
 }
 
 table, tr, td {
@@ -15,7 +37,7 @@ td, th {
     text-align: center;
 }
 
-tr {
+tr, form {
     vertical-align: top;
     width: auto;
 }
@@ -29,14 +51,6 @@ tr {
     width: 100%;
     border-radius: 5px;
     background-color: lavenderblush;
-}
-
-form {
-    width: auto;
-}
-
-div {
-    padding: 5px;
 }
 
 button {
@@ -61,4 +75,3 @@ img {
     height: 400px;
     object-fit: cover;
 }
-
