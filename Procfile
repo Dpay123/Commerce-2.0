@@ -1,1 +1,1 @@
-web: gunicorn commerce-python-django.wsgi
+web: gunicorn Commerce.wsgi
