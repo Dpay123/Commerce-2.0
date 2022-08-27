@@ -6,8 +6,6 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.forms import ModelForm, HiddenInput
-from matplotlib import widgets
-from pytz import common_timezones
 
 from .models import *
 
