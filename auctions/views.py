@@ -185,7 +185,7 @@ def create(request):
         if form.is_valid():
             listing = form.save(commit=False)
             if not listing.img_url:
-                listing.img_url = "https://www.daveraine.com/img/products/no-image.jpg"
+                listing.img_url = "https://www.freeiconspng.com/thumbs/no-image-icon/no-image-icon-15.png"
             listing.save()
             return redirect("index")
         else:
