@@ -8,7 +8,7 @@
         {% for listing in watchlist %}
         <div class="card">
             <a href="{% url 'listing' listing.listing_id %}" class="card-link"></a>
-            <img class="card-img-top" src="{{ listing.listing.img_url }}">
+            <img class="card-img-top" src="{{ listing.listing.img.url }}">
             <div class="card-body">
                 <h4 class="card-title">{{ listing.listing.item }}</a></h4>
                 <h6 class="card-subtitle mb-2 text-muted">{{ listing.listing.category }}</h6>

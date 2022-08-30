@@ -12,7 +12,7 @@ from .models import *
 class NewListingForm(ModelForm):
     class Meta:
         model = Listing
-        fields = ['item', 'description', 'starting_bid', 'category', 'img_url', 'seller']
+        fields = ['item', 'description', 'starting_bid', 'category', 'img', 'seller']
         widgets = {'seller': HiddenInput()}
 
 class NewBidForm(ModelForm):
@@ -181,12 +181,9 @@ def create(request):
         return render(request, "auctions/create.html", context)
 
     else:
-        form = NewListingForm(request.POST)
+        form = NewListingForm(request.POST, request.FILES)
         if form.is_valid():
-            listing = form.save(commit=False)
-            if not listing.img_url:
-                listing.img_url = "https://www.freeiconspng.com/thumbs/no-image-icon/no-image-icon-15.png"
-            listing.save()
+            form.save()
             return redirect("index")
         else:
             return HttpResponse("Invalid Form")

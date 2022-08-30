@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.conf import settings
 
 
 class User(AbstractUser):
@@ -21,6 +22,7 @@ class Listing(models.Model):
     current_bid = models.FloatField(null=True, blank=True)
     category = models.CharField(null=True, blank=True, max_length=64, choices=CATEGORY)
     img_url = models.URLField(blank=True)
+    img = models.ImageField(upload_to='', default='default_img.png')
     seller = models.ForeignKey(User, on_delete=models.CASCADE)
     closed = models.BooleanField(null=True, default=False)
 

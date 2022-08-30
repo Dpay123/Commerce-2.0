@@ -8,7 +8,7 @@
         {% for listing in listings %}
         <div class="card">
             <a href="{% url 'listing' listing.id %}" class="card-link"></a>
-            <img class="card-img-top" src="{{ listing.img_url }}">
+            <img class="card-img-top" src="{{ listing.img.url }}">
             <div class="card-body">
                 <h4 class="card-title">{{ listing.item }}</a></h4>
                 <h6 class="card-subtitle mb-2 text-muted">{{ listing.category }}</h6>
