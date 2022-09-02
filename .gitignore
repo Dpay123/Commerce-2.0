@@ -4,3 +4,5 @@ venv/
 *.tmp
 static/
 backup.json
+__pycache__/
+migrations/
