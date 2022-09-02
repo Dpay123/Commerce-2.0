@@ -1,5 +1,6 @@
 from django.forms import ModelForm, HiddenInput
 from .models import *
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 class NewListingForm(ModelForm):
     class Meta:

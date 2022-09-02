@@ -164,7 +164,10 @@ def create(request):
             form.save()
             return redirect("index")
         else:
-            return HttpResponse("Invalid Form")
+            context = {
+                "form": form,
+            }
+            return render(request, "auctions/create.html", context)
 
 def login_view(request):
     if request.method == "POST":

@@ -1,12 +1,11 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.conf import settings
-
-
-class User(AbstractUser):
-    pass
+from decimal import Decimal
+from django.core.validators import MinValueValidator
 
 CATEGORY = {
+    ("Misc", "Misc"),
     ("Home", "Home"),
     ("Electronics", "Electronics"),
     ("Toys", "Toys"),
@@ -14,17 +13,20 @@ CATEGORY = {
     ("Other", "Other")
 }
 
+class User(AbstractUser):
+    pass
+
 # one to many: 1 user can have many listings
 class Listing(models.Model):
-    item = models.CharField(null=True, max_length=200)
+
+    item = models.CharField(max_length=200, blank=False)
     description = models.TextField(null=True, blank=True, max_length=500)
-    starting_bid = models.FloatField()
-    current_bid = models.FloatField(null=True, blank=True)
-    category = models.CharField(null=True, blank=True, max_length=64, choices=CATEGORY)
-    img_url = models.URLField(blank=True)
-    img = models.ImageField(upload_to='', default='default_img.png')
+    starting_bid = models.DecimalField(decimal_places=2, max_digits=10, null=False, validators=[MinValueValidator(Decimal('0.01'))])
+    current_bid = models.DecimalField(decimal_places=2, max_digits=10, null=True, blank=True, validators=[MinValueValidator(Decimal('0.01'))])
+    category = models.CharField(null=True, blank=True, max_length=64, choices=CATEGORY, default="Misc")
+    img = models.ImageField(upload_to='', default='default_img.png', null=True, blank=True)
     seller = models.ForeignKey(User, on_delete=models.CASCADE)
-    closed = models.BooleanField(null=True, default=False)
+    closed = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.item}"
