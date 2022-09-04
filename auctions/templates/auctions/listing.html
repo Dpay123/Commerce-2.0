@@ -98,6 +98,10 @@
                 <div class="error">{{ bid_error }}</div>
             </td>
         </tr>
+        <tr>
+            <input type="hidden" name="bidder" value="{{ user.id }}">
+            <input type="hidden" name="bidding_on" value="{{ listing.id }}">
+        </tr>
         </form>
         {% endif %}
     </table>

@@ -22,3 +22,24 @@ class TestForms(TestCase):
         form = NewListingForm(data={})
         self.assertFalse(form.is_valid())
         self.assertEqual(len(form.errors), 3)
+
+    def test_bid_form_valid_data(self):
+        # set up a bidder
+        user2 = User.objects.create(username='bidder')
+        # set up item to bid on
+        item1 = Listing.objects.create(
+            item='Item 1',
+            starting_bid=4.22,
+            seller=self.user1
+        )
+        form = NewBidForm(data={
+            'bidder': user2,
+            'bidding_on': item1,
+            'bid': 4.64
+        })
+        self.assertTrue(form.is_valid())
+
+    def test_bid_form_no_data(self):
+        form = NewBidForm(data={})
+        self.assertFalse(form.is_valid())
+        self.assertEqual(len(form.errors), 3)

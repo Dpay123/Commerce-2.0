@@ -35,7 +35,8 @@ class Listing(models.Model):
 class Bid(models.Model):
     bidder = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
     bidding_on = models.ForeignKey(Listing, null=True, on_delete=models.CASCADE)
-    bid = models.FloatField()
+    bid = models.DecimalField(decimal_places=2, max_digits=10, null=False, validators=[MinValueValidator(Decimal('0.01'))])
+    ### can minValueValidator be used in context of bidding_on.current_bid?
 
     def __str__(self):
         return f"{self.bidding_on} - {self.bid} - {self.bidder}"
