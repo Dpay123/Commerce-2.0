@@ -89,11 +89,7 @@ def listing(request, listing_id):
             bid = float(request.POST['bid'])
             if is_valid(bid, listing):
                 form = NewBidForm(request.POST)
-                newBid = form.save(commit=False)
-                newBid.bidding_on = listing
-                newBid.bid = bid
-                newBid.bidder = user
-                newBid.save()
+                form.save()
                 listing.current_bid = bid
                 listing.save()
                 return render(request, "auctions/listing.html", context)
