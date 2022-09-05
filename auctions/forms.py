@@ -14,9 +14,8 @@ class NewListingForm(ModelForm):
 class NewBidForm(ModelForm):
     class Meta:
         model = Bid
-        fields = ['bid', 'bidding_on', 'bidder']
+        fields = ['bid', 'bidder']
         widgets = {
-            'bidding_on': HiddenInput(),
             'bidder': HiddenInput()
         }
 
@@ -24,7 +23,11 @@ class NewCommentForm(ModelForm):
 
     class Meta:
         model = Comment
-        fields = ['comment']
+        fields = ['comment', 'auction', 'author']
+        widgets = {
+            'auction': HiddenInput(),
+            'author': HiddenInput()
+        }
 
 class NewWatchForm(ModelForm):
     class Meta:

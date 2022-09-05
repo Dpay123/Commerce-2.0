@@ -5,3 +5,4 @@ venv/
 static/
 backup.json
 __pycache__/
+media/
