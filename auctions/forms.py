@@ -24,7 +24,11 @@ class NewCommentForm(ModelForm):
 
     class Meta:
         model = Comment
-        fields = ['comment']
+        fields = ['comment', 'auction', 'author']
+        widgets = {
+            'auction': HiddenInput(),
+            'author': HiddenInput()
+        }
 
 class NewWatchForm(ModelForm):
     class Meta:

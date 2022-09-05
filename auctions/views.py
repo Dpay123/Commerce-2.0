@@ -80,10 +80,7 @@ def listing(request, listing_id):
         elif request.POST.get("button") == "comment":
             form = NewCommentForm(request.POST)
             if form.is_valid():
-                new_comment = form.save(commit=False)
-                new_comment.author = user
-                new_comment.auction = listing
-                new_comment.save()
+                form.save()
                 return render(request, "auctions/listing.html", context)
         else:
             bid = float(request.POST['bid'])
