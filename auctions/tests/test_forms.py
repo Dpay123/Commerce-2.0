@@ -54,3 +54,17 @@ class TestForms(TestCase):
     def test_comment_form_no_data(self):
         form = NewCommentForm(data={})
         self.assertEqual(len(form.errors), 3)
+
+    def test_watch_form_valid_data(self):
+        # set up a watcher
+        user2 = User.objects.create(username='watcher')
+        form = NewWatchForm(data={
+            'user': user2,
+            'listing': self.item1
+        })
+        self.assertTrue(form.is_valid())
+
+    def test_watch_form_no_data(self):
+        form = NewWatchForm(data={})
+        self.assertFalse(form.is_valid())
+        self.assertEqual(len(form.errors), 2)
