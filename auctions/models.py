@@ -29,7 +29,7 @@ class Listing(models.Model):
     closed = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.item}"
+        return self.item
 
 # one to one: 1 listing can only have one set of bids
 class Bid(models.Model):
@@ -45,8 +45,14 @@ class Watchlist(models.Model):
     user = models.ForeignKey(User, null=True, on_delete=models.CASCADE, related_name="watchlist")
     listing = models.ForeignKey(Listing, null=True, on_delete=models.CASCADE, related_name="listings")
 
+    def __str__(self):
+        return f"{self.user} is watching {self.listing}"
+
 # one to many: 1 listing can have many comments
 class Comment(models.Model):
     auction = models.ForeignKey(Listing, null=True, on_delete=models.CASCADE, related_name="get_comments")
     author = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
     comment = models.TextField(null=True, max_length=500)
+
+    def __str__(self):
+        return f"{self.author} commented on {self.auction}"
