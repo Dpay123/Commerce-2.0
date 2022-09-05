@@ -41,7 +41,7 @@ class TestForms(TestCase):
     def test_bid_form_no_data(self):
         form = NewBidForm(data={})
         self.assertFalse(form.is_valid())
-        self.assertEqual(len(form.errors), 3)
+        self.assertEqual(len(form.errors), 2)
 
     def test_comment_form_valid_data(self):
         form = NewCommentForm(data={

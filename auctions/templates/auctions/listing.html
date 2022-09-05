@@ -20,7 +20,13 @@
         </tr>
         <tr>
             <th>Current Bid: </th>
-            <td>${{ listing.current_bid | floatformat:2 }}</td>
+            <td>
+            {% if listing.get_current_bid != 0 %}
+                ${{ listing.get_current_bid | floatformat:2 }}
+            {% else %}
+                Be the first to bid!
+            {% endif %}
+            </td>
         </tr>
         <tr>
             <th>Category: </th>
@@ -100,7 +106,6 @@
         </tr>
         <tr>
             <input type="hidden" name="bidder" value="{{ user.id }}">
-            <input type="hidden" name="bidding_on" value="{{ listing.id }}">
         </tr>
         </form>
         {% endif %}

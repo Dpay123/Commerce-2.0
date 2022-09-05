@@ -14,9 +14,8 @@ class NewListingForm(ModelForm):
 class NewBidForm(ModelForm):
     class Meta:
         model = Bid
-        fields = ['bid', 'bidding_on', 'bidder']
+        fields = ['bid', 'bidder']
         widgets = {
-            'bidding_on': HiddenInput(),
             'bidder': HiddenInput()
         }
 

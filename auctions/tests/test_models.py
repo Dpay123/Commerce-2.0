@@ -15,3 +15,14 @@ class TestModels(TestCase):
 
     def test_listing_model_string_representation(self):
         self.assertEqual(str(self.listing1), self.listing1.item)
+
+    def test_listing_model_get_current_bid_none(self):
+        self.assertEquals(self.listing1.get_current_bid(), 0)
+
+    def test_listing_model_get_current_bid(self):
+        new_bid = Bid.objects.create(
+            bidder=self.user1,
+            bid=1.04
+        )
+        self.listing1.current_bid = new_bid
+        self.assertEquals(self.listing1.get_current_bid(), 1.04)

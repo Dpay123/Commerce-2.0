@@ -17,7 +17,13 @@
             <div class="card-footer">
                 <div>Listing Price: ${{ listing.starting_bid | floatformat:2 }}</div>
                 {% if not listing.closed %}
-                <div>Current Bid: ${{ listing.current_bid | floatformat:2 }}</div>
+                <div>
+                    {% if listing.get_current_bid == 0 %}
+                        No bids
+                    {% else %}
+                        Current Bid: ${{ listing.get_current_bid | floatformat:2 }}
+                    {% endif %}
+                </div>
                 {% else %}
                 <div class="error"><i class="error">Sold!</i></div>
                 {% endif %}

@@ -22,24 +22,16 @@ def check_if_seller(user, listing):
 def check_if_winner(user, listing):
     try:
         if not check_if_seller(user, listing):
-            highest_bid = Bid.objects.get(bidding_on=listing, bid=listing.current_bid)
-            return highest_bid.bidder == user
+            if listing.closed:
+                return listing.current_bid['bidder'] == user
         else:
             return False
     except ObjectDoesNotExist:
         return False
 
-def is_valid(bid, listing):
-    if bid > listing.starting_bid and (listing.current_bid is None or bid > listing.current_bid):
-        return True
-    else:
-        return False
-
 def listing(request, listing_id):
     listing = Listing.objects.get(pk=listing_id)
     comments = Comment.objects.filter(auction=listing)
-    if listing.current_bid == None:
-        listing.current_bid = listing.starting_bid
     # if logged in
     if request.user.is_authenticated:
         user = User.objects.get(username=request.user)
@@ -83,15 +75,24 @@ def listing(request, listing_id):
                 form.save()
                 return render(request, "auctions/listing.html", context)
         else:
-            bid = float(request.POST['bid'])
-            if is_valid(bid, listing):
-                form = NewBidForm(request.POST)
-                form.save()
-                listing.current_bid = bid
-                listing.save()
-                return render(request, "auctions/listing.html", context)
+            form = NewBidForm(request.POST)
+            if form.is_valid():
+                new_bid_amt = form.cleaned_data['bid']
+                if (new_bid_amt > listing.starting_bid):
+                    if (new_bid_amt > listing.get_current_bid()):
+                        new_bid = form.save()
+                        listing.current_bid = new_bid
+                        listing.save()
+                        return HttpResponseRedirect(reverse('listing', args=[listing_id]))
+                    else:
+                        context["bid_error"] = "Bid must exceed current"
+                        return render(request, "auctions/listing.html", context)
+                else:
+                    context["bid_error"] = "Bid must exceed starting bid and current bid"
+                    return render(request, "auctions/listing.html", context)
+            # handling of invalid form
             else:
-                context["bid_error"] = "Bid must exceed current"
+                context["bid_error"] = "Bid cannot be negative or exceedingly large"
                 return render(request, "auctions/listing.html", context)
 
     # if POST but not logged in
@@ -102,7 +103,6 @@ def listing(request, listing_id):
     # if GET request
     else:
         return render(request, "auctions/listing.html", context)
-
  
 def categories(request):
     category_list = []
@@ -124,19 +124,13 @@ def search_category(request, category):
 def watchlist(request):
     user = request.user
     watched_items = user.watchlist.filter(user_id = user)
-    for listing in watched_items:
-        if listing.listing.current_bid == None:
-            listing.listing.current_bid = listing.listing.starting_bid
     context = {
         "watchlist": watched_items
     }
     return render(request, "auctions/watchlist.html", context)
 
 def index(request):
-    listings = Listing.objects.filter()
-    for listing in listings:
-        if listing.current_bid == None:
-            listing.current_bid = listing.starting_bid
+    listings = Listing.objects.all()
     context = {
         "listings": listings
     }
