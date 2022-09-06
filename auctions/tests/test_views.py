@@ -1,10 +1,7 @@
 from django.test import TestCase, Client
 from django.urls import reverse
 from auctions.models import *
-from django.core.files.uploadedfile import SimpleUploadedFile
-import json
-
-from auctions.views import check_if_seller, check_if_watched, check_if_winner
+from auctions.views import *
 
 class TestViews(TestCase):
 
@@ -18,7 +15,6 @@ class TestViews(TestCase):
             description='This is a description',
             starting_bid=34.99,
             category= 'Home',
-            img= SimpleUploadedFile(name='test_image.jpg', content=b'', content_type='image/jpg'),
             seller=self.user1
         )
         self.listing_url = reverse('listing', args=['0'])
@@ -36,7 +32,7 @@ class TestViews(TestCase):
         self.assertTrue(check_if_seller(self.user1, self.listing1))
         self.assertFalse(check_if_seller(self.user2, self.listing1))
 
-    def test_check_if_winner_valid(self):
+    def test_check_if_winner_valid_bid_closed_auction(self):
         winning_bid = Bid.objects.create(
             bidder=self.user2,
             bid=50.00
@@ -70,6 +66,23 @@ class TestViews(TestCase):
             closed=True
         )
         self.assertFalse(check_if_winner(self.user1, listing2))
+
+    def test_check_if_seller_valid_bid_open_auction(self):
+        # cannot be winner if auction is not closed
+        winning_bid = Bid.objects.create(
+            bidder=self.user2,
+            bid=50.00
+        )
+        listing2 = Listing.objects.create(
+            id= 1,
+            item='Item 2',
+            starting_bid=34.99,
+            current_bid=winning_bid,
+            category= 'Home',
+            seller=self.user1,
+            closed=False
+        )
+        self.assertFalse(check_if_winner(self.user2, listing2))
 
     def test_listing_GET(self):
         response = self.client.get(self.listing_url)
