@@ -37,6 +37,12 @@ class Listing(models.Model):
         else:
             return 0
 
+    def get_current_bidder(self):
+        if self.current_bid != None:
+            return self.current_bid.bidder
+        else:
+            return 0
+
 # one to one: bid represents current bid for a listing, listing can only have one current bid
 class Bid(models.Model):
     bidder = models.ForeignKey(User, null=True, on_delete=models.CASCADE)

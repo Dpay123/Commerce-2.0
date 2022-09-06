@@ -23,8 +23,9 @@ def check_if_winner(user, listing):
     try:
         if not check_if_seller(user, listing):
             if listing.closed:
-                return listing.current_bid['bidder'] == user
+                return listing.get_current_bidder() == user
         else:
+            # print('seller cannot be winner')
             return False
     except ObjectDoesNotExist:
         return False
