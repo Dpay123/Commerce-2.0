@@ -1,6 +1,9 @@
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from auctions.models import *
 from django.core.files.uploadedfile import SimpleUploadedFile
+import shutil
+
+TEST_DIR = 'test_data'
 
 class TestModels(TestCase):
 
@@ -16,6 +19,7 @@ class TestModels(TestCase):
             seller= self.user1
         )
 
+    @override_settings(MEDIA_ROOT=(TEST_DIR + '/media'))
     def test_listing_model_valid_data(self):
         listing2 = Listing.objects.create(
             item='Item 2',
@@ -92,3 +96,10 @@ class TestModels(TestCase):
             comment= 'This is a comment'
         )
         self.assertEquals(str(comment1), 'user1 commented on Item 1')
+
+def tearDownModule():
+    print("\nDeleting temporary files...\n")
+    try:
+        shutil.rmtree(TEST_DIR)
+    except OSError:
+        pass

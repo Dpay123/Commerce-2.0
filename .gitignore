@@ -4,4 +4,5 @@ venv/
 *.tmp
 static/
 backup.json
-__pycache__/
+*__pycache__*
+media/test*
