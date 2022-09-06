@@ -7,7 +7,7 @@ class TestModels(TestCase):
     # will write test for User class if modified from default
 
     def setUp(self):
-        # create a test user
+        # create test users
         self.user1 = User.objects.create(username='user1')
         # create a test listing 
         self.listing1 = Listing.objects.create(
@@ -69,5 +69,20 @@ class TestModels(TestCase):
             listing=self.listing1
         )
         self.assertEquals(str(watched_item), f'user1 is watching Item 1')
+
+    def test_comment(self):
+        user2 = User.objects.create(username='user2')
+        comment1 = Comment.objects.create(
+            auction= self.listing1,
+            author= self.user1,
+            comment= 'This is a comment'
+        )
+        comment2 = Comment.objects.create(
+            auction= self.listing1,
+            author= user2,
+            comment= 'This is another comment'
+        )
+        self.assertEquals(Comment.objects.filter(auction=self.listing1).count(), 2)
+        self.assertEquals(Comment.objects.filter(author=user2).count(), 1)
 
 

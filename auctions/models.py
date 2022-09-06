@@ -37,6 +37,7 @@ class Listing(models.Model):
         else:
             return 0
 
+# one to one: bid represents current bid for a listing, listing can only have one current bid
 class Bid(models.Model):
     bidder = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
     bid = models.DecimalField(decimal_places=2, max_digits=10, null=False, validators=[MinValueValidator(Decimal('0.01'))])
