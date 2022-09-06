@@ -85,4 +85,10 @@ class TestModels(TestCase):
         self.assertEquals(Comment.objects.filter(auction=self.listing1).count(), 2)
         self.assertEquals(Comment.objects.filter(author=user2).count(), 1)
 
-
+    def test_comment_string_representation(self):
+        comment1 = Comment.objects.create(
+            auction= self.listing1,
+            author= self.user1,
+            comment= 'This is a comment'
+        )
+        self.assertEquals(str(comment1), 'user1 commented on Item 1')
