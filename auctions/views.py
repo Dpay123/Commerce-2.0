@@ -24,18 +24,9 @@ def check_if_winner(user, listing):
         if not check_if_seller(user, listing):
             if listing.closed:
                 return listing.get_current_bidder() == user
-            else:
-                # DEBUG
-                print('auction is not closed')
-                return False
-        else:
-            # DEBUG 
-            print('seller cannot be winner')
-            return False
     except ObjectDoesNotExist:
-        # DEBUG 
-        print('object does not exist')
-        return False
+        pass
+    return False
 
 def listing(request, listing_id):
     listing = Listing.objects.get(pk=listing_id)
