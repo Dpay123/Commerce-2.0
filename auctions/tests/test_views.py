@@ -254,7 +254,7 @@ class TestViews(TestCase):
         # test comment not created
         self.assertFalse(Comment.objects.filter(author=self.user1).exists())
 
-    def test_listing_POST_valid_bid(self):
+    def test_listing_POST_valid_bid_valid(self):
         # log in user (that is not seller)
         self.client.login(username='user2', password='pass')
         # simulate bid button click
@@ -269,8 +269,20 @@ class TestViews(TestCase):
         # successful bid should redirect to listing 
         self.assertRedirects(response, self.listing_url, status_code=302)
 
-
-    # def test_listing_POST_invalid_bid
+    def test_listing_POST_valid_bid_lower_than_starting_bid(self):
+        # log in user (that is not seller)
+        self.client.login(username='user2', password='pass')
+        # simulate bid button click
+        response = self.client.post(self.listing_url, {
+            'bidder': self.user2.id,
+            'bid': 32.00
+        })
+        # check bid not created
+        self.assertEquals(len(Bid.objects.all()), 0)
+        # invalid bid returns to listing page with error message
+        self.assertEquals(response.status_code, 200)
+        self.assertTemplateUsed(response, "auctions/listing.html")
+        self.assertEquals(response.context['bid_error'], "Bid must exceed starting bid and current bid")
 
     def test_login_view_GET(self):
         response = self.client.get(self.login_url)
