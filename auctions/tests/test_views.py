@@ -99,8 +99,6 @@ class TestViews(TestCase):
         self.assertEquals(response.status_code, 200)
         self.assertTemplateUsed(response, 'auctions/listing.html')
 
-    # def test_listing_POST
-
     def test_categories_GET(self):
         # represents a page that shows all categories
         response = self.client.get(self.categories_url)
@@ -180,6 +178,27 @@ class TestViews(TestCase):
         # should return to create page
         self.assertEquals(response.status_code, 200)
         self.assertTemplateUsed(response, "auctions/create.html")
+
+    def test_listing_POST_not_logged_in(self):
+        response = self.client.post(self.listing_url, {})
+        # should return to listing page with error message
+        self.assertEquals(response.status_code, 200)
+        self.assertTemplateUsed(response, "auctions/listing.html")
+        self.assertEquals(response.context['error'], "You must be logged in")
+
+    # def test_listing_POST_close
+
+    # def test_listing_POST_add_to_watchlist
+
+    # def test_listing_POST_remove_from_watchlist
+
+    # def test_listing_POST_valid_comment
+
+    # def test_listing_POST_invalid_comment
+
+    # def test_listing_POST_valid_bid
+
+    # def test_listing_POST_invalid_bid
 
     def test_login_view_GET(self):
         response = self.client.get(self.login_url)
