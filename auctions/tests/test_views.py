@@ -12,6 +12,8 @@ class TestViews(TestCase):
         self.user1.set_password('pass')
         self.user1.save()
         self.user2 = User.objects.create(username='user2')
+        self.user2.set_password('pass')
+        self.user2.save()
         self.listing1 = Listing.objects.create(
             id= 0,
             item='Item 1',
@@ -198,7 +200,6 @@ class TestViews(TestCase):
         # successful close should redirect back to listing page
         self.assertRedirects(response, self.listing_url, status_code=302)
     
-
     def test_listing_POST_add_to_watchlist(self):
         # log in user
         self.client.login(username='user1', password='pass')
@@ -253,7 +254,21 @@ class TestViews(TestCase):
         # test comment not created
         self.assertFalse(Comment.objects.filter(author=self.user1).exists())
 
-    # def test_listing_POST_valid_bid
+    def test_listing_POST_valid_bid(self):
+        # log in user (that is not seller)
+        self.client.login(username='user2', password='pass')
+        # simulate bid button click
+        response = self.client.post(self.listing_url, {
+            'bidder': self.user2.id,
+            'bid': 35.00
+        })
+        # check bid created
+        self.assertEquals(len(Bid.objects.all()), 1)
+        # check listing current bid updated
+        self.assertEquals(Listing.objects.first().get_current_bid(), 35.00)
+        # successful bid should redirect to listing 
+        self.assertRedirects(response, self.listing_url, status_code=302)
+
 
     # def test_listing_POST_invalid_bid
 
