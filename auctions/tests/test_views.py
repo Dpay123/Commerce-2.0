@@ -186,7 +186,18 @@ class TestViews(TestCase):
         self.assertTemplateUsed(response, "auctions/listing.html")
         self.assertEquals(response.context['error'], "You must be logged in")
 
-    # def test_listing_POST_close
+    def test_listing_POST_close(self):
+        # log in user
+        self.client.login(username='user1', password='pass')
+        # test close auction functionality
+        response = self.client.post(self.listing_url, {
+            'button': "Close"
+        })
+        # test listing closed
+        self.assertTrue(Listing.objects.get(pk=0).closed)
+        # successful close should redirect back to listing page
+        self.assertRedirects(response, self.listing_url, status_code=302)
+    
 
     # def test_listing_POST_add_to_watchlist
 
