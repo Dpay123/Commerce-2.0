@@ -284,6 +284,34 @@ class TestViews(TestCase):
         self.assertTemplateUsed(response, "auctions/listing.html")
         self.assertEquals(response.context['bid_error'], "Bid must exceed starting bid and current bid")
 
+    def test_listing_POST_valid_bid_lower_than_current_bid(self):
+        listing_url1 = reverse('listing', args=['1'])
+        # log in user (that is not seller)
+        self.client.login(username='user2', password='pass')
+        # create new listing with current bid
+        Bid.objects.create(
+            bid=35.50,
+            bidder=self.user2
+        )
+        Listing.objects.create(
+            id= 1,
+            item='Item 2',
+            starting_bid=34.99,
+            current_bid=Bid.objects.first(),
+            seller=self.user1
+        )
+        # simulate bid button click with bid lower than current
+        response = self.client.post(listing_url1, {
+            'bidder': self.user2.id,
+            'bid': 35.25
+        })
+        # check 2nd bid not created
+        self.assertEquals(len(Bid.objects.filter(bidder=self.user2)), 1)
+        # invalid bid returns to listing page with error message
+        self.assertEquals(response.status_code, 200)
+        self.assertTemplateUsed(response, "auctions/listing.html")
+        self.assertEquals(response.context['bid_error'], "Bid must exceed current")
+
     def test_login_view_GET(self):
         response = self.client.get(self.login_url)
         self.assertEquals(response.status_code, 200)
