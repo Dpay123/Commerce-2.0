@@ -1,4 +1,3 @@
-from typing import List
 from django.test import TestCase, Client
 from django.urls import reverse
 from auctions.models import *
@@ -156,7 +155,31 @@ class TestViews(TestCase):
         # should pass the NewListingForm as context
         self.assertIsInstance(response.context['form'], NewListingForm)
 
-    # def test_create_POST
+    def test_create_POST_valid(self):
+        # log in user
+        self.client.login(username='user1', password='pass')
+        # test form data
+        response = self.client.post(self.create_url, {
+            'item': 'Test Item',
+            'starting_bid': 1.00,
+            'seller': self.user1.id
+        })
+        # valid form data should be saved as object
+        self.assertTrue(Listing.objects.filter(item='Test Item').exists())
+        # valid form data should redirect to index
+        self.assertRedirects(response, self.index_url, status_code=302)
+
+    def test_create_POST_invalid(self):
+        # log in user
+        self.client.login(username='user1', password='pass')
+        # test invalid form data
+        response = self.client.post(self.create_url, {
+            'item': 'Test Item',
+            'starting_bid': -1
+        })
+        # should return to create page
+        self.assertEquals(response.status_code, 200)
+        self.assertTemplateUsed(response, "auctions/create.html")
 
     def test_login_view_GET(self):
         response = self.client.get(self.login_url)
