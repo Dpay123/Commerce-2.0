@@ -241,9 +241,17 @@ class TestViews(TestCase):
         # test comment created
         self.assertTrue(Comment.objects.filter(comment='this is a comment', author=self.user1, auction=self.listing1).exists())
 
-
-        
-    # def test_listing_POST_invalid_comment
+    def test_listing_POST_invalid_comment(self):
+        # log in user
+        self.client.login(username='user1', password='pass')
+        # simulate comment button click with invalid data (blank comment)
+        response = self.client.post(self.listing_url, {
+            'button': 'comment',
+            'author': self.user1.id,
+            'auction': self.listing1.id
+        })
+        # test comment not created
+        self.assertFalse(Comment.objects.filter(author=self.user1).exists())
 
     # def test_listing_POST_valid_bid
 
