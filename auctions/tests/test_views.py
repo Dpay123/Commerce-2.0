@@ -202,7 +202,7 @@ class TestViews(TestCase):
     def test_listing_POST_add_to_watchlist(self):
         # log in user
         self.client.login(username='user1', password='pass')
-        # test close auction functionality
+        # simulate watchlist button click
         response = self.client.post(self.listing_url, {
             'button': "Watchlist"
         })
@@ -211,10 +211,38 @@ class TestViews(TestCase):
         # successful close should redirect back to listing page
         self.assertRedirects(response, self.listing_url, status_code=302)
 
-    # def test_listing_POST_remove_from_watchlist
+    def test_listing_POST_remove_from_watchlist(self):
+        # log in user
+        self.client.login(username='user1', password='pass')
+        # create watchlist item
+        Watchlist.objects.create(
+            user=self.user1,
+            listing=self.listing1
+        )
+        # simulate watchlist button click
+        response = self.client.post(self.listing_url, {
+            'button': "Watchlist"
+        })
+        # test watchlist removed
+        self.assertFalse(Watchlist.objects.filter(user=self.user1, listing=self.listing1).exists())
+        # successful close should redirect back to listing page
+        self.assertRedirects(response, self.listing_url, status_code=302)
 
-    # def test_listing_POST_valid_comment
+    def test_listing_POST_valid_comment(self):
+        # log in user
+        self.client.login(username='user1', password='pass')
+        # simulate comment button click
+        response = self.client.post(self.listing_url, {
+            'button': 'comment',
+            'comment': 'this is a comment',
+            'author': self.user1.id,
+            'auction': self.listing1.id
+        })
+        # test comment created
+        self.assertTrue(Comment.objects.filter(comment='this is a comment', author=self.user1, auction=self.listing1).exists())
 
+
+        
     # def test_listing_POST_invalid_comment
 
     # def test_listing_POST_valid_bid
