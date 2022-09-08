@@ -18,6 +18,11 @@ class TestModels(TestCase):
             starting_bid= 4.00,
             seller= self.user1
         )
+        # create a test bid
+        self.new_bid = Bid.objects.create(
+            bidder=self.user1,
+            bid=10.01
+        )
 
     @override_settings(MEDIA_ROOT=(TEST_DIR + '/media'))
     def test_listing_model_valid_data(self):
@@ -96,6 +101,13 @@ class TestModels(TestCase):
             comment= 'This is a comment'
         )
         self.assertEquals(str(comment1), 'user1 commented on Item 1')
+
+    def test_bid(self):
+        self.assertEqual(self.new_bid, Bid.objects.first())
+
+    def test_bid_string_representation(self):
+        self.assertEquals(str(self.new_bid), "10.01 - user1")
+
 
 def tearDownModule():
     print("\nDeleting temporary files...\n")

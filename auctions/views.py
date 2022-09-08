@@ -72,7 +72,7 @@ def listing(request, listing_id):
             form = NewCommentForm(request.POST)
             if form.is_valid():
                 form.save()
-                return render(request, "auctions/listing.html", context)
+            return render(request, "auctions/listing.html", context)
         else:
             form = NewBidForm(request.POST)
             if form.is_valid():

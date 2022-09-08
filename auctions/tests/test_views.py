@@ -1,4 +1,3 @@
-from typing import List
 from django.test import TestCase, Client
 from django.urls import reverse
 from auctions.models import *
@@ -13,6 +12,8 @@ class TestViews(TestCase):
         self.user1.set_password('pass')
         self.user1.save()
         self.user2 = User.objects.create(username='user2')
+        self.user2.set_password('pass')
+        self.user2.save()
         self.listing1 = Listing.objects.create(
             id= 0,
             item='Item 1',
@@ -100,8 +101,6 @@ class TestViews(TestCase):
         self.assertEquals(response.status_code, 200)
         self.assertTemplateUsed(response, 'auctions/listing.html')
 
-    # def test_listing_POST
-
     def test_categories_GET(self):
         # represents a page that shows all categories
         response = self.client.get(self.categories_url)
@@ -156,14 +155,197 @@ class TestViews(TestCase):
         # should pass the NewListingForm as context
         self.assertIsInstance(response.context['form'], NewListingForm)
 
-    # def test_create_POST
+    def test_create_POST_valid(self):
+        # log in user
+        self.client.login(username='user1', password='pass')
+        # test form data
+        response = self.client.post(self.create_url, {
+            'item': 'Test Item',
+            'starting_bid': 1.00,
+            'seller': self.user1.id
+        })
+        # valid form data should be saved as object
+        self.assertTrue(Listing.objects.filter(item='Test Item').exists())
+        # valid form data should redirect to index
+        self.assertRedirects(response, self.index_url, status_code=302)
+
+    def test_create_POST_invalid(self):
+        # log in user
+        self.client.login(username='user1', password='pass')
+        # test invalid form data
+        response = self.client.post(self.create_url, {
+            'item': 'Test Item',
+            'starting_bid': -1
+        })
+        # should return to create page
+        self.assertEquals(response.status_code, 200)
+        self.assertTemplateUsed(response, "auctions/create.html")
+
+    def test_listing_POST_not_logged_in(self):
+        response = self.client.post(self.listing_url, {})
+        # should return to listing page with error message
+        self.assertEquals(response.status_code, 200)
+        self.assertTemplateUsed(response, "auctions/listing.html")
+        self.assertEquals(response.context['error'], "You must be logged in")
+
+    def test_listing_POST_close(self):
+        # log in user
+        self.client.login(username='user1', password='pass')
+        # test close auction functionality
+        response = self.client.post(self.listing_url, {
+            'button': "Close"
+        })
+        # test listing closed
+        self.assertTrue(Listing.objects.get(pk=0).closed)
+        # successful close should redirect back to listing page
+        self.assertRedirects(response, self.listing_url, status_code=302)
+    
+    def test_listing_POST_add_to_watchlist(self):
+        # log in user
+        self.client.login(username='user1', password='pass')
+        # simulate watchlist button click
+        response = self.client.post(self.listing_url, {
+            'button': "Watchlist"
+        })
+        # test watchlist added
+        self.assertTrue(Watchlist.objects.filter(user=self.user1, listing=self.listing1).exists())
+        # successful close should redirect back to listing page
+        self.assertRedirects(response, self.listing_url, status_code=302)
+
+    def test_listing_POST_remove_from_watchlist(self):
+        # log in user
+        self.client.login(username='user1', password='pass')
+        # create watchlist item
+        Watchlist.objects.create(
+            user=self.user1,
+            listing=self.listing1
+        )
+        # simulate watchlist button click
+        response = self.client.post(self.listing_url, {
+            'button': "Watchlist"
+        })
+        # test watchlist removed
+        self.assertFalse(Watchlist.objects.filter(user=self.user1, listing=self.listing1).exists())
+        # successful close should redirect back to listing page
+        self.assertRedirects(response, self.listing_url, status_code=302)
+
+    def test_listing_POST_valid_comment(self):
+        # log in user
+        self.client.login(username='user1', password='pass')
+        # simulate comment button click
+        response = self.client.post(self.listing_url, {
+            'button': 'comment',
+            'comment': 'this is a comment',
+            'author': self.user1.id,
+            'auction': self.listing1.id
+        })
+        # test comment created
+        self.assertTrue(Comment.objects.filter(comment='this is a comment', author=self.user1, auction=self.listing1).exists())
+
+    def test_listing_POST_invalid_comment(self):
+        # log in user
+        self.client.login(username='user1', password='pass')
+        # simulate comment button click with invalid data (blank comment)
+        response = self.client.post(self.listing_url, {
+            'button': 'comment',
+            'author': self.user1.id,
+            'auction': self.listing1.id
+        })
+        # test comment not created
+        self.assertFalse(Comment.objects.filter(author=self.user1).exists())
+
+    def test_listing_POST_valid_bid_valid(self):
+        # log in user (that is not seller)
+        self.client.login(username='user2', password='pass')
+        # simulate bid button click
+        response = self.client.post(self.listing_url, {
+            'bidder': self.user2.id,
+            'bid': 35.00
+        })
+        # check bid created
+        self.assertEquals(len(Bid.objects.all()), 1)
+        # check listing current bid updated
+        self.assertEquals(Listing.objects.first().get_current_bid(), 35.00)
+        # successful bid should redirect to listing 
+        self.assertRedirects(response, self.listing_url, status_code=302)
+
+    def test_listing_POST_valid_bid_lower_than_starting_bid(self):
+        # log in user (that is not seller)
+        self.client.login(username='user2', password='pass')
+        # simulate bid button click
+        response = self.client.post(self.listing_url, {
+            'bidder': self.user2.id,
+            'bid': 32.00
+        })
+        # check bid not created
+        self.assertEquals(len(Bid.objects.all()), 0)
+        # invalid bid returns to listing page with error message
+        self.assertEquals(response.status_code, 200)
+        self.assertTemplateUsed(response, "auctions/listing.html")
+        self.assertEquals(response.context['bid_error'], "Bid must exceed starting bid and current bid")
+
+    def test_listing_POST_valid_bid_lower_than_current_bid(self):
+        listing_url1 = reverse('listing', args=['1'])
+        # log in user (that is not seller)
+        self.client.login(username='user2', password='pass')
+        # create new listing with current bid
+        Bid.objects.create(
+            bid=35.50,
+            bidder=self.user2
+        )
+        Listing.objects.create(
+            id= 1,
+            item='Item 2',
+            starting_bid=34.99,
+            current_bid=Bid.objects.first(),
+            seller=self.user1
+        )
+        # simulate bid button click with bid lower than current
+        response = self.client.post(listing_url1, {
+            'bidder': self.user2.id,
+            'bid': 35.25
+        })
+        # check 2nd bid not created
+        self.assertEquals(len(Bid.objects.filter(bidder=self.user2)), 1)
+        # invalid bid returns to listing page with error message
+        self.assertEquals(response.status_code, 200)
+        self.assertTemplateUsed(response, "auctions/listing.html")
+        self.assertEquals(response.context['bid_error'], "Bid must exceed current")
 
     def test_login_view_GET(self):
         response = self.client.get(self.login_url)
         self.assertEquals(response.status_code, 200)
         self.assertTemplateUsed(response, "auctions/login.html")
 
-    # def test_login_view_POST
+    def test_login_view_POST_valid_user(self):
+        response = self.client.post(self.login_url, {
+            'username': self.user1,
+            'password': 'pass'
+        })
+        # check valid login
+        self.assertTrue(self.user1.is_authenticated)
+        # valid login should redirect to index page
+        self.assertRedirects(response, self.index_url, status_code=302)
+
+    def test_login_view_POST_invalid_user(self):
+        response = self.client.post(self.login_url, {
+            'username': 'invalid',
+            'password': 'invalid'
+        })
+        # invalid login should return the login page
+        self.assertEquals(response.status_code, 200)
+        self.assertTemplateUsed(response, "auctions/login.html")
+        self.assertEquals(response.context['message'], "Invalid username and/or password.")
+
+    def test_login_view_POST_invalid_password(self):
+        response = self.client.post(self.login_url, {
+            'username': self.user1,
+            'password': 'invalid'
+        })
+        # invalid login should return the login page
+        self.assertEquals(response.status_code, 200)
+        self.assertTemplateUsed(response, "auctions/login.html")
+        self.assertEquals(response.context['message'], "Invalid username and/or password.")
 
     def test_logout_view_GET(self):
         # log in user
@@ -177,4 +359,43 @@ class TestViews(TestCase):
         self.assertEquals(response.status_code, 200)
         self.assertTemplateUsed(response, "auctions/register.html")
 
-    # def test_register_POST
+    def test_register_POST_valid(self):
+        response = self.client.post(self.register_url, {
+            'username': 'user3',
+            'email': 'email@email.com',
+            'password': 'pass',
+            'confirmation': 'pass'
+        })
+        user = User.objects.get(username='user3')
+        # check valid registration
+        self.assertTrue(user.is_active)
+        # check valid login
+        self.assertTrue(user.is_authenticated)
+        # valid login should redirect to index page
+        self.assertRedirects(response, self.index_url, status_code=302)
+
+    def test_register_POST_invalid_pass_confirmation(self):
+        response = self.client.post(self.register_url, {
+            'username': 'user3',
+            'email': 'email@email.com',
+            'password': 'pass',
+            'confirmation': 'not pass'
+        })
+        # check user was not created
+        self.assertEquals(len(User.objects.filter(username='user3')), 0)
+        # invalid registration should return register page with error
+        self.assertEquals(response.status_code, 200)
+        self.assertTemplateUsed(response, "auctions/register.html")
+        self.assertEquals(response.context['message'], "Passwords must match.")
+
+    def test_register_POST_username_taken(self):
+            response = self.client.post(self.register_url, {
+                'username': 'user1',
+                'email': 'notsaved@email.com',
+                'password': 'pass',
+                'confirmation': 'pass'
+            })
+            # username taken = Integrity Error, returns register page with error message
+            self.assertEquals(response.status_code, 200)
+            self.assertTemplateUsed(response, "auctions/register.html")
+            self.assertEquals(response.context['message'], "Username already taken.")
