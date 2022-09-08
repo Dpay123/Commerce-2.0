@@ -199,7 +199,17 @@ class TestViews(TestCase):
         self.assertRedirects(response, self.listing_url, status_code=302)
     
 
-    # def test_listing_POST_add_to_watchlist
+    def test_listing_POST_add_to_watchlist(self):
+        # log in user
+        self.client.login(username='user1', password='pass')
+        # test close auction functionality
+        response = self.client.post(self.listing_url, {
+            'button': "Watchlist"
+        })
+        # test watchlist added
+        self.assertTrue(Watchlist.objects.filter(user=self.user1, listing=self.listing1).exists())
+        # successful close should redirect back to listing page
+        self.assertRedirects(response, self.listing_url, status_code=302)
 
     # def test_listing_POST_remove_from_watchlist
 
