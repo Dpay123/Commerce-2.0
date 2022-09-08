@@ -183,6 +183,16 @@ class TestViews(TestCase):
         self.assertTemplateUsed(response, "auctions/login.html")
         self.assertEquals(response.context['message'], "Invalid username and/or password.")
 
+    def test_login_view_POST_invalid_password(self):
+        response = self.client.post(self.login_url, {
+            'username': self.user1,
+            'password': 'invalid'
+        })
+        # invalid login should return the login page
+        self.assertEquals(response.status_code, 200)
+        self.assertTemplateUsed(response, "auctions/login.html")
+        self.assertEquals(response.context['message'], "Invalid username and/or password.")
+
     def test_logout_view_GET(self):
         # log in user
         self.client.login(username='user1', password='pass')
@@ -195,4 +205,43 @@ class TestViews(TestCase):
         self.assertEquals(response.status_code, 200)
         self.assertTemplateUsed(response, "auctions/register.html")
 
-    # def test_register_POST
+    def test_register_POST_valid(self):
+        response = self.client.post(self.register_url, {
+            'username': 'user3',
+            'email': 'email@email.com',
+            'password': 'pass',
+            'confirmation': 'pass'
+        })
+        user = User.objects.get(username='user3')
+        # check valid registration
+        self.assertTrue(user.is_active)
+        # check valid login
+        self.assertTrue(user.is_authenticated)
+        # valid login should redirect to index page
+        self.assertRedirects(response, self.index_url, status_code=302)
+
+    def test_register_POST_invalid_pass_confirmation(self):
+        response = self.client.post(self.register_url, {
+            'username': 'user3',
+            'email': 'email@email.com',
+            'password': 'pass',
+            'confirmation': 'not pass'
+        })
+        # check user was not created
+        self.assertEquals(len(User.objects.filter(username='user3')), 0)
+        # invalid registration should return register page with error
+        self.assertEquals(response.status_code, 200)
+        self.assertTemplateUsed(response, "auctions/register.html")
+        self.assertEquals(response.context['message'], "Passwords must match.")
+
+    def test_register_POST_username_taken(self):
+            response = self.client.post(self.register_url, {
+                'username': 'user1',
+                'email': 'notsaved@email.com',
+                'password': 'pass',
+                'confirmation': 'pass'
+            })
+            # username taken = Integrity Error, returns register page with error message
+            self.assertEquals(response.status_code, 200)
+            self.assertTemplateUsed(response, "auctions/register.html")
+            self.assertEquals(response.context['message'], "Username already taken.")
