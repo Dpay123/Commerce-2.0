@@ -163,7 +163,25 @@ class TestViews(TestCase):
         self.assertEquals(response.status_code, 200)
         self.assertTemplateUsed(response, "auctions/login.html")
 
-    # def test_login_view_POST
+    def test_login_view_POST_valid_user(self):
+        response = self.client.post(self.login_url, {
+            'username': self.user1,
+            'password': 'pass'
+        })
+        # check valid login
+        self.assertTrue(self.user1.is_authenticated)
+        # valid login should redirect to index page
+        self.assertRedirects(response, self.index_url, status_code=302)
+
+    def test_login_view_POST_invalid_user(self):
+        response = self.client.post(self.login_url, {
+            'username': 'invalid',
+            'password': 'invalid'
+        })
+        # invalid login should return the login page
+        self.assertEquals(response.status_code, 200)
+        self.assertTemplateUsed(response, "auctions/login.html")
+        self.assertEquals(response.context['message'], "Invalid username and/or password.")
 
     def test_logout_view_GET(self):
         # log in user
