@@ -57,21 +57,23 @@ def listing(request, listing_id):
         if request.POST.get("button") == "Close" and seller:
             listing.closed = True
             listing.save()
-            return HttpResponseRedirect(reverse('listing', args=(listing.id,)))
+        # watch item functionality
         elif request.POST.get("button") == "Watchlist":
             if not watched:
+                # create a watch item
                 Watchlist.objects.create(
                     user = user,
                     listing = listing
                 )
             else:
+                # delete from user watchlist
                 user.watchlist.filter(listing=listing).delete()
-            return HttpResponseRedirect(reverse('listing', args=(listing.id,)))
+        # comment functionality
         elif request.POST.get("button") == "comment":
             form = NewCommentForm(request.POST)
             if form.is_valid():
                 form.save()
-            return render(request, "auctions/listing.html", context)
+        # bid functionality
         else:
             form = NewBidForm(request.POST)
             if form.is_valid():
@@ -92,7 +94,7 @@ def listing(request, listing_id):
             else:
                 context["bid_error"] = "Bid cannot be negative or exceedingly large"
                 return render(request, "auctions/listing.html", context)
-
+        return HttpResponseRedirect(reverse('listing', args=(listing.id,)))
     # if POST but not logged in
     elif request.method == 'POST' and not request.user.is_authenticated:
         context["error"] = "You must be logged in"
