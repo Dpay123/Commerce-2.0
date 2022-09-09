@@ -116,7 +116,7 @@ def listing(request, listing_id):
     return render(request, "auctions/listing.html", context)
  
 def categories(request):
-    category_list = [i for i in CATEGORY]
+    category_list = [i[0] for i in CATEGORY]
     context = {
         "categories": category_list
     }
