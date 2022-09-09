@@ -25,6 +25,7 @@ class TestViews(TestCase):
         self.listing_url = reverse('listing', args=['0'])
         self.categories_url = reverse('categories')
         self.watchlist_url = reverse('watchlist')
+        self.user_listings_url = reverse('user listings')
         self.index_url = reverse('index')
         self.create_url = reverse('create')
         self.login_url = reverse('login')
@@ -136,6 +137,16 @@ class TestViews(TestCase):
         self.assertTemplateUsed(response, "auctions/watchlist.html")
         # should return a queryset of all items in user watchlist
         self.assertQuerysetEqual(response.context['watchlist'], Watchlist.objects.filter(user=self.user1))
+
+    def test_user_listings_GET(self):
+        # log in user
+        self.client.login(username='user1', password='pass')
+        response = self.client.get(self.user_listings_url)
+        self.assertEquals(response.status_code, 200)
+        # should return user_listings page
+        self.assertTemplateUsed(response, "auctions/user_listings.html")
+        # should return a queryset of all items listed by user
+        self.assertQuerysetEqual(response.context['user_listings'], Listing.objects.filter(seller=self.user1))
 
     def test_index_GET(self):
         response = self.client.get(self.index_url)

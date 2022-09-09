@@ -32,6 +32,10 @@ class TestUrls(SimpleTestCase):
         url = reverse('watchlist')
         self.assertEquals(resolve(url).func, watchlist)
 
+    def test_user_listings_resolves(self):
+        url = reverse('user listings')
+        self.assertEquals(resolve(url).func, user_listings)
+
     def test_categories_url_resolves(self):
         url = reverse('categories')
         self.assertEquals(resolve(url).func, categories)

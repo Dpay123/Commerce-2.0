@@ -138,6 +138,15 @@ def watchlist(request):
     }
     return render(request, "auctions/watchlist.html", context)
 
+@login_required
+def user_listings(request):
+    user = request.user
+    user_listings = Listing.objects.filter(seller = user)
+    context = {
+        "user_listings": user_listings
+    }
+    return render(request, "auctions/user_listings.html", context)
+
 def index(request):
     listings = Listing.objects.all()
     context = {
