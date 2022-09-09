@@ -29,15 +29,17 @@ def listing(request, listing_id):
     comments = Comment.objects.filter(auction=listing)
     # if logged in
     if request.user.is_authenticated:
-        user = User.objects.get(username=request.user)
+        user = request.user
         watched = check_if_watched(user, listing)
         seller = check_if_seller(user, listing)
         winner = check_if_winner(user, listing)
+    # if not logged in, set false (these are used for bid/watch functionality, authenticated users only)
     else:
         watched = False
         seller = False
         winner = False
 
+    # set common context
     context = {
         "listing": listing,
         "comments": comments,
@@ -51,16 +53,17 @@ def listing(request, listing_id):
     }
 
     if request.method == "POST" and request.user.is_authenticated:
-        if request.POST.get("button") == "Close":
+        # close auction functionality for seller only
+        if request.POST.get("button") == "Close" and seller:
             listing.closed = True
             listing.save()
             return HttpResponseRedirect(reverse('listing', args=(listing.id,)))
         elif request.POST.get("button") == "Watchlist":
             if not watched:
-                watchlist = Watchlist()
-                watchlist.user = user
-                watchlist.listing = listing
-                watchlist.save()
+                Watchlist.objects.create(
+                    user = user,
+                    listing = listing
+                )
             else:
                 user.watchlist.filter(listing=listing).delete()
             return HttpResponseRedirect(reverse('listing', args=(listing.id,)))

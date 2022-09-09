@@ -37,9 +37,8 @@ class Listing(models.Model):
     def get_current_bidder(self):
         return self.current_bid.bidder if self.current_bid else 0
 
-# one to one: bid represents current bid for a listing, listing can only have one current bid
 class Bid(models.Model):
-    bidder = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
+    bidder = models.ForeignKey(User, null=True, on_delete=models.CASCADE, related_name='bids')
     bid = models.DecimalField(decimal_places=2, max_digits=10, null=False, validators=[MinValueValidator(Decimal('0.01'))])
 
     def __str__(self):
@@ -47,14 +46,14 @@ class Bid(models.Model):
 
 class Watchlist(models.Model):
     user = models.ForeignKey(User, null=True, on_delete=models.CASCADE, related_name="watchlist")
-    listing = models.ForeignKey(Listing, null=True, on_delete=models.CASCADE, related_name="listings")
+    listing = models.ForeignKey(Listing, null=True, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.user} is watching {self.listing}"
 
 # one to many: 1 listing can have many comments
 class Comment(models.Model):
-    auction = models.ForeignKey(Listing, null=True, on_delete=models.CASCADE, related_name="get_comments")
+    auction = models.ForeignKey(Listing, null=True, on_delete=models.CASCADE)
     author = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
     comment = models.TextField(null=True, max_length=500)
 
