@@ -53,10 +53,12 @@ def listing(request, listing_id):
     }
 
     if request.method == "POST" and request.user.is_authenticated:
+
         # close auction functionality for seller only
         if request.POST.get("button") == "Close" and seller:
             listing.closed = True
             listing.save()
+
         # watch item functionality
         elif request.POST.get("button") == "Watchlist":
             if not watched:
@@ -68,41 +70,50 @@ def listing(request, listing_id):
             else:
                 # delete from user watchlist
                 user.watchlist.filter(listing=listing).delete()
+
         # comment functionality
         elif request.POST.get("button") == "comment":
             form = NewCommentForm(request.POST)
             if form.is_valid():
                 form.save()
+
         # bid functionality
         else:
             form = NewBidForm(request.POST)
             if form.is_valid():
+                # retrieve bid data
                 new_bid_amt = form.cleaned_data['bid']
+                # bid checks: bid must be greater than starting and current bid
                 if (new_bid_amt > listing.starting_bid):
                     if (new_bid_amt > listing.get_current_bid()):
+                        # save bid 
                         new_bid = form.save()
+                        # set current bid to the new saved bid
                         listing.current_bid = new_bid
                         listing.save()
                         return HttpResponseRedirect(reverse('listing', args=[listing_id]))
                     else:
                         context["bid_error"] = "Bid must exceed current"
-                        return render(request, "auctions/listing.html", context)
                 else:
                     context["bid_error"] = "Bid must exceed starting bid and current bid"
-                    return render(request, "auctions/listing.html", context)
+
             # handling of invalid form
             else:
                 context["bid_error"] = "Bid cannot be negative or exceedingly large"
-                return render(request, "auctions/listing.html", context)
+                
+            # return method for all bid errors
+            return render(request, "auctions/listing.html", context)
+        
+        # return method for close, watch, comment functionality
         return HttpResponseRedirect(reverse('listing', args=(listing.id,)))
-    # if POST but not logged in
-    elif request.method == 'POST' and not request.user.is_authenticated:
-        context["error"] = "You must be logged in"
-        return render(request, "auctions/listing.html", context)
 
-    # if GET request
-    else:
-        return render(request, "auctions/listing.html", context)
+
+    # if POST but not logged in
+    elif request.method == 'POST':
+        context["error"] = "You must be logged in"
+
+    # return method for GET request or POST (not logged in)
+    return render(request, "auctions/listing.html", context)
  
 def categories(request):
     category_list = [i for i in CATEGORY]
