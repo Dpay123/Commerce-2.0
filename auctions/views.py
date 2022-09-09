@@ -2,7 +2,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
@@ -10,14 +10,10 @@ from .models import *
 from .forms import *
 
 def check_if_watched(user, listing):
-    if not user.watchlist.filter(listing = listing):
-        return False
-    return True
+    return user.watchlist.filter(listing = listing)
 
 def check_if_seller(user, listing):
-    if user == listing.seller:
-        return True
-    return False
+    return user == listing.seller
 
 def check_if_winner(user, listing):
     try:
@@ -104,9 +100,7 @@ def listing(request, listing_id):
         return render(request, "auctions/listing.html", context)
  
 def categories(request):
-    category_list = []
-    for i in CATEGORY:
-        category_list.append(i[0])
+    category_list = [i for i in CATEGORY]
     context = {
         "categories": category_list
     }
@@ -137,23 +131,20 @@ def index(request):
 
 @login_required
 def create(request):
-    if request.method == "GET":
-        form = NewListingForm()
-        context = {
-            "form": form
-        }
-        return render(request, "auctions/create.html", context)
-
-    else:
+    # post method
+    if request.method == 'POST':
         form = NewListingForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
             return redirect("index")
-        else:
-            context = {
-                "form": form,
-            }
-            return render(request, "auctions/create.html", context)
+    # get method
+    else:
+        form = NewListingForm()
+    # streamlined return for both methods
+    context = {
+        "form": form,
+    }
+    return render(request, "auctions/create.html", context)
 
 def login_view(request):
     if request.method == "POST":
