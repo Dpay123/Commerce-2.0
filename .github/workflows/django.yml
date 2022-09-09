@@ -15,9 +15,9 @@ jobs:
       postgres:
         image: postgres:12.12
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: github_actions
+          MY_POSTGRES_USER: ${{ secrets.MY_POSTGRES_USER }}
+          MY_POSTGRES_PASSWORD: ${{ secrets.MY_POSTGRES_PASSWORD }}
+          MY_POSTGRES_DB: ${{ secrets.MY_POSTGRES_DB }}
         ports:
           - 5432:5432
         # needed because the postgres container does not provide a healthcheck
