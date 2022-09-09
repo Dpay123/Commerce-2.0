@@ -25,23 +25,17 @@ class Listing(models.Model):
     current_bid = models.ForeignKey('Bid', null=True, blank=True, on_delete=models.SET_NULL)
     category = models.CharField(null=True, blank=True, max_length=64, choices=CATEGORY, default="Misc")
     img = models.ImageField(upload_to='', default='default_img.png', null=True, blank=True)
-    seller = models.ForeignKey(User, on_delete=models.CASCADE)
+    seller = models.ForeignKey(User, on_delete=models.CASCADE, related_name='listings')
     closed = models.BooleanField(default=False)
 
     def __str__(self):
         return self.item
 
     def get_current_bid(self):
-        if self.current_bid != None:
-            return self.current_bid.bid
-        else:
-            return 0
+        return self.current_bid.bid if self.current_bid else 0
 
     def get_current_bidder(self):
-        if self.current_bid != None:
-            return self.current_bid.bidder
-        else:
-            return 0
+        return self.current_bid.bidder if self.current_bid else 0
 
 # one to one: bid represents current bid for a listing, listing can only have one current bid
 class Bid(models.Model):
