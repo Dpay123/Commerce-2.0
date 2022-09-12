@@ -1,7 +1,10 @@
 body {
-    padding: 15px;
-    background-color: lavenderblush;
+    padding-top: 85px;
+    padding-left:30px;
+    background-color: white;
 }
+
+.nav li a{color:white !important;}
 
 .card {
     position: relative;
@@ -25,19 +28,7 @@ body {
     font-weight: bold;
 }
 
-table, tr, td {
-    background-color: bisque;
-    border: 2px solid black;
-    width: 650px;
-}
-
-td, th {
-    padding: 10px;
-    width: auto;
-    text-align: center;
-}
-
-tr, form {
+form {
     vertical-align: top;
     width: auto;
 }
@@ -50,15 +41,15 @@ tr, form {
 #id_item, #id_starting_bid, #id_description, #id_img_url, #id_category {
     width: 100%;
     border-radius: 5px;
-    background-color: lavenderblush;
+    background-color: lightgray;
 }
 
 button {
     border-radius: 5px;
     border: 3px solid black;
-    height: 60px;
+    height: 33px;
     width: 150px;
-    background-color: aquamarine;
+    background-color: lightgray;
     font-weight: bold;
 }
 
