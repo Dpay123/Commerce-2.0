@@ -1,15 +1,18 @@
 from django.test import TestCase
 from auctions.forms import *
 from auctions.models import *
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 class TestForms(TestCase):
 
     def setUp(self):
         self.user1 = User.objects.create()
+        self.category1 = Category.objects.create(category='test category')
         self.item1 = Listing.objects.create(
             item='Item 1',
             starting_bid=4.22,
-            seller=self.user1
+            seller=self.user1,
+            category=self.category1
         )
 
     def test_listing_form_valid_data(self):
@@ -17,16 +20,16 @@ class TestForms(TestCase):
             'item': 'Item Title',
             'description': 'Item Description',
             'starting_bid': 1.00,
-            'category': 'Home',
             'img': SimpleUploadedFile(name='test_image.jpg', content=b'', content_type='image/jpeg'),
-            'seller': User.objects.first()
+            'seller': User.objects.first(),
+            'category': self.category1
         })
         self.assertTrue(form.is_valid())
 
     def test_listing_form_no_data(self):
         form = NewListingForm(data={})
         self.assertFalse(form.is_valid())
-        self.assertEqual(len(form.errors), 3)
+        self.assertEqual(len(form.errors), 4)
 
     def test_bid_form_valid_data(self):
         # set up a bidder

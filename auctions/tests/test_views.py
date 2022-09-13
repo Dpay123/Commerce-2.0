@@ -14,16 +14,18 @@ class TestViews(TestCase):
         self.user2 = User.objects.create(username='user2')
         self.user2.set_password('pass')
         self.user2.save()
+        # set up test category
+        self.category1 = Category.objects.create(category='test category')
         self.listing1 = Listing.objects.create(
             id= 0,
             item='Item 1',
             description='This is a description',
             starting_bid=34.99,
-            category= 'Home',
-            seller=self.user1
+            seller=self.user1,
+            category=self.category1
         )
         self.listing_url = reverse('listing', args=['0'])
-        self.categories_url = reverse('categories')
+        self.category_url = reverse('category', args=[0])
         self.watchlist_url = reverse('watchlist')
         self.user_listings_url = reverse('user listings')
         self.index_url = reverse('index')
@@ -55,9 +57,9 @@ class TestViews(TestCase):
             item='Item 2',
             starting_bid=34.99,
             current_bid=winning_bid,
-            category= 'Home',
             seller=self.user1,
-            closed=True
+            closed=True,
+            category=self.category1
         )
         # user2 is not seller and is current bidder
         # auction is closed
@@ -74,9 +76,9 @@ class TestViews(TestCase):
             item='Item 2',
             starting_bid=34.99,
             current_bid=winning_bid,
-            category= 'Home',
             seller=self.user1,
-            closed=True
+            closed=True,
+            category= self.category1
         )
         self.assertFalse(check_if_winner(self.user1, listing2))
 
@@ -91,9 +93,9 @@ class TestViews(TestCase):
             item='Item 2',
             starting_bid=34.99,
             current_bid=winning_bid,
-            category= 'Home',
             seller=self.user1,
-            closed=False
+            closed=False,
+            category=self.category1
         )
         self.assertFalse(check_if_winner(self.user2, listing2))
 
@@ -102,26 +104,15 @@ class TestViews(TestCase):
         self.assertEquals(response.status_code, 200)
         self.assertTemplateUsed(response, 'auctions/listing.html')
 
-    def test_categories_GET(self):
-        # represents a page that shows all categories
-        response = self.client.get(self.categories_url)
-        self.assertEquals(response.status_code, 200)
-        # should return categories page
-        self.assertTemplateUsed(response, "auctions/categories.html")
-        # should pass a list to template
-        self.assertIsInstance(response.context['categories'], list)
-        # list should contain all categories
-        self.assertEquals(len(response.context['categories']), len(CATEGORY))
-
-    def test_search_category_GET(self):
-        # represents a search for items with 'Home' category
-        search_category_url = reverse('search category', args=['Home'])
-        response = self.client.get(search_category_url)
+    def test_category_GET(self):
+        # represents a search for items by category
+        search_category_url = reverse('category', args=[0])
+        response = self.client.get(self.category_url)
         self.assertEquals(response.status_code, 200)
         # should return index page
         self.assertTemplateUsed(response, "auctions/index.html")
-        # should return queryset with all Listings in 'Home' category
-        self.assertQuerysetEqual(response.context['listings'], Listing.objects.filter(category='Home'))
+        # should return queryset with all Listings in 0 category
+        self.assertQuerysetEqual(response.context['listings'], Listing.objects.filter(category=Category.objects.first()))
 
     def test_watchlist_GET(self):
         # log in user
@@ -173,7 +164,8 @@ class TestViews(TestCase):
         response = self.client.post(self.create_url, {
             'item': 'Test Item',
             'starting_bid': 1.00,
-            'seller': self.user1.id
+            'seller': self.user1.id,
+            'category': self.category1.id
         })
         # valid form data should be saved as object
         self.assertTrue(Listing.objects.filter(item='Test Item').exists())
@@ -309,7 +301,8 @@ class TestViews(TestCase):
             item='Item 2',
             starting_bid=34.99,
             current_bid=Bid.objects.first(),
-            seller=self.user1
+            seller=self.user1,
+            category=self.category1
         )
         # simulate bid button click with bid lower than current
         response = self.client.post(listing_url1, {
@@ -400,13 +393,13 @@ class TestViews(TestCase):
         self.assertEquals(response.context['message'], "Passwords must match.")
 
     def test_register_POST_username_taken(self):
-            response = self.client.post(self.register_url, {
-                'username': 'user1',
-                'email': 'notsaved@email.com',
-                'password': 'pass',
-                'confirmation': 'pass'
-            })
-            # username taken = Integrity Error, returns register page with error message
-            self.assertEquals(response.status_code, 200)
-            self.assertTemplateUsed(response, "auctions/register.html")
-            self.assertEquals(response.context['message'], "Username already taken.")
+        response = self.client.post(self.register_url, {
+            'username': 'user1',
+            'email': 'notsaved@email.com',
+            'password': 'pass',
+            'confirmation': 'pass'
+        })
+        # username taken = Integrity Error, returns register page with error message
+        self.assertEquals(response.status_code, 200)
+        self.assertTemplateUsed(response, "auctions/register.html")
+        self.assertEquals(response.context['message'], "Username already taken.")

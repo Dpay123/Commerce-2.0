@@ -1,3 +1,4 @@
+from unicodedata import category
 from django.test import TestCase, override_settings
 from auctions.models import *
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -12,11 +13,14 @@ class TestModels(TestCase):
     def setUp(self):
         # create test users
         self.user1 = User.objects.create(username='user1')
+        # create a test Category
+        self.category1 = Category.objects.create(category="Test Category")
         # create a test listing 
         self.listing1 = Listing.objects.create(
             item= 'Item 1',
             starting_bid= 4.00,
-            seller= self.user1
+            seller= self.user1,
+            category= self.category1
         )
         # create a test bid
         self.new_bid = Bid.objects.create(
@@ -30,7 +34,7 @@ class TestModels(TestCase):
             item='Item 2',
             description='This is a description',
             starting_bid=34.99,
-            category= 'Home',
+            category= self.category1,
             img= SimpleUploadedFile(name='test_image.jpg', content=b'', content_type='image/jpg'),
             seller=self.user1
         )
@@ -55,7 +59,8 @@ class TestModels(TestCase):
         listing2 = Listing.objects.create(
             item= 'Item 2',
             starting_bid= 4.00,
-            seller= user2
+            seller= user2,
+            category= self.category1
         )
         Watchlist.objects.create(
             user=self.user1,
@@ -81,12 +86,12 @@ class TestModels(TestCase):
 
     def test_comment(self):
         user2 = User.objects.create(username='user2')
-        comment1 = Comment.objects.create(
+        Comment.objects.create(
             auction= self.listing1,
             author= self.user1,
             comment= 'This is a comment'
         )
-        comment2 = Comment.objects.create(
+        Comment.objects.create(
             auction= self.listing1,
             author= user2,
             comment= 'This is another comment'
