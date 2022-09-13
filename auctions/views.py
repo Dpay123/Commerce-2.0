@@ -1,10 +1,10 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
-from django.db import IntegrityError
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from django.db import IntegrityError, transaction
 
 from .models import *
 from .forms import *
@@ -114,16 +114,9 @@ def listing(request, listing_id):
 
     # return method for GET request or POST (not logged in)
     return render(request, "auctions/listing.html", context)
- 
-def categories(request):
-    category_list = [i[0] for i in CATEGORY]
-    context = {
-        "categories": category_list
-    }
-    return render(request, "auctions/categories.html", context)
 
-def search_category(request, category):
-    listings = Listing.objects.filter(category = category)
+def search_category(request, category_id):
+    listings = Listing.objects.filter(id = category_id)
     context = {
         "listings": listings
     }
@@ -207,15 +200,15 @@ def register(request):
                 "message": "Passwords must match."
             })
         # Attempt to create new user
-        try:
+        if User.objects.filter(username=username).exists():
+            return render(request, "auctions/register.html", {
+            "message": "Username already taken."
+        })
+        else:
             user = User.objects.create_user(username, email, password)
             user.save()
-        except IntegrityError:
-            return render(request, "auctions/register.html", {
-                "message": "Username already taken."
-            })
-        login(request, user)
-        return HttpResponseRedirect(reverse("index"))
+            login(request, user)
+            return HttpResponseRedirect(reverse("index"))
     # get method
     else:
         return render(request, "auctions/register.html")

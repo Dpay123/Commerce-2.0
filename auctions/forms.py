@@ -1,6 +1,5 @@
-from django.forms import ModelForm, HiddenInput, NumberInput
+from django.forms import ModelForm, HiddenInput, NumberInput, ModelChoiceField
 from .models import *
-from django.core.files.uploadedfile import SimpleUploadedFile
 
 class NewListingForm(ModelForm):
     class Meta:
@@ -10,6 +9,10 @@ class NewListingForm(ModelForm):
             'seller': HiddenInput(),
             'starting_bid': NumberInput(attrs={'step': 'any'})
         }
+
+        def __init__(self, *args, **kwargs):
+            super(NewListingForm, self).__init__(*args, **kwargs)
+            self.fields['category'].widget = ModelChoiceField(queryset=Category.objects.all())
 
 class NewBidForm(ModelForm):
     class Meta:

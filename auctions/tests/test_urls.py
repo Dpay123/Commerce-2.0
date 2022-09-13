@@ -36,10 +36,6 @@ class TestUrls(SimpleTestCase):
         url = reverse('user listings')
         self.assertEquals(resolve(url).func, user_listings)
 
-    def test_categories_url_resolves(self):
-        url = reverse('categories')
-        self.assertEquals(resolve(url).func, categories)
-
-    def test_search_category_url_resolves(self):
-        url = reverse('search category', args=['some category'])
+    def test_category_url_resolves(self):
+        url = reverse('category', args=[0])
         self.assertEquals(resolve(url).func, search_category)

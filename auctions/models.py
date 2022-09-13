@@ -4,17 +4,15 @@ from django.conf import settings
 from decimal import Decimal
 from django.core.validators import MinValueValidator
 
-CATEGORY = {
-    ("Misc", "Misc"),
-    ("Home", "Home"),
-    ("Electronics", "Electronics"),
-    ("Toys", "Toys"),
-    ("Fashion", "Fashion"),
-    ("Other", "Other")
-}
-
 class User(AbstractUser):
     pass
+
+class Category(models.Model):
+
+    category = models.CharField(max_length=24, blank=False)
+
+    def __str__(self):
+        return self.category
 
 # one to many: 1 user can have many listings
 class Listing(models.Model):
@@ -23,7 +21,7 @@ class Listing(models.Model):
     description = models.TextField(null=True, blank=True, max_length=500)
     starting_bid = models.DecimalField(decimal_places=2, max_digits=10, null=False, validators=[MinValueValidator(Decimal('0.01'))])
     current_bid = models.ForeignKey('Bid', null=True, blank=True, on_delete=models.SET_NULL)
-    category = models.CharField(null=True, blank=True, max_length=64, choices=CATEGORY, default="Misc")
+    category = models.ForeignKey(Category, on_delete=models.RESTRICT, default=Category.objects.filter(pk=0), null=False, blank=False)
     img = models.ImageField(upload_to='', default='default_img.png', null=True, blank=True)
     seller = models.ForeignKey(User, on_delete=models.CASCADE, related_name='listings')
     closed = models.BooleanField(default=False)
