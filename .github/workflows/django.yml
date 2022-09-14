@@ -50,6 +50,6 @@ jobs:
         git push heroku HEAD:main -f
     - name: Reset Production Database
       run: |
-        heroku run python manage.py flush --no-input
+        heroku run python manage.py flush --no-input --app auctions
         heroku run python manage.py migrate
         heroku run python manage.py loaddata db.json
