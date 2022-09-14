@@ -48,8 +48,3 @@ jobs:
       run: |
         git remote add heroku https://heroku:$HEROKU_API_TOKEN@git.heroku.com/$HEROKU_APP_NAME.git
         git push heroku HEAD:main -f
-    - name: Reset Production Database
-      run: |
-        heroku run python manage.py flush --no-input --app auctions
-        heroku run python manage.py migrate
-        heroku run python manage.py loaddata db.json
