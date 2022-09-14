@@ -8,6 +8,8 @@ class User(AbstractUser):
     pass
 
 class Category(models.Model):
+    class Meta:
+        verbose_name_plural = "categories"
 
     category = models.CharField(max_length=24, blank=False)
 

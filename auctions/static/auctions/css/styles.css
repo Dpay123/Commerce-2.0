@@ -8,10 +8,15 @@ body {
 
 .card {
     position: relative;
-    width: 240px;
+    width: 350px;
+    height: 500px;
     border: 2px solid black;
     border-radius: 5px;
     margin: 5px;
+}
+
+.card-body {
+    overflow: hidden;
 }
 
 .card-link {

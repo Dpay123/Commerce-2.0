@@ -12,7 +12,7 @@
             <div class="card-body">
                 <h4 class="card-title">{{ listing.item }}</a></h4>
                 <h6 class="card-subtitle mb-2 text-muted">{{ listing.category }}</h6>
-                <div><p class="card-text">{{ listing.description }}</p></div>
+                <div class="card-text"><p>{{ listing.description }}</p></div>
             </div>
             <div class="card-footer">
                 <div>Listing Price: ${{ listing.starting_bid | floatformat:2 }}</div>
