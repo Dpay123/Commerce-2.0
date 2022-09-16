@@ -1,7 +1,124 @@
 body {
     padding-top: 85px;
     padding-left:30px;
-    background-color: white;
+    background-color: lightgray;
+}
+
+/* TEMPORARY */
+#body-div, #mid-div, #bot-div {
+    padding:0% !important;
+    border: none !important;
+    height: fit-content !important;
+    max-width: 800px;
+}
+#top-div {
+    padding:0% !important;
+    border: none !important;
+    height: 400px !important;
+    max-width: 800px;
+}
+#left-div {
+    width: 400px;
+    height: auto;
+    /* border-width: 3px !important;
+    border-color: green !important;
+    border-style: solid; */
+    padding:0% !important;
+    background-color: whitesmoke;
+}
+#right-div {
+    width: 400px;
+    height: auto;
+    /* border-width: 3px !important;
+    border-color: orangered !important;
+    border-style: solid; */
+    padding:0% !important;
+    background-color: whitesmoke;
+    text-align: center;
+}
+
+#com-title {
+    width: inherit;
+    border: 1px;
+    border-style: solid;
+    border-color: black;
+    font-weight: 700;
+}
+#list-price, #cur-price {
+    padding: 0% !important;
+}
+
+#list-price div, #cur-price div {
+    width: 50%;
+    border: none !important;
+}
+#text {
+    font-size: large;
+    font-weight: 500;
+    border: none !important;
+}
+#price {
+    font-size: 25px;
+    font-weight: 600;
+    border: none !important;
+}
+#comment-div {
+    max-width: 800px !important;
+    /* border-width: 3px !important;
+    border-color: green !important;
+    border-style: solid; */
+    padding:0% !important;
+    background-color: whitesmoke;
+}
+#auth-div {
+    width:200px;
+    /* border-width: 3px !important;
+    border-color: orangered !important; */
+    /* border-style: solid; */
+}
+#com-div {
+    width: 100%;
+    /* border-width: 3px !important;
+    border-color: blue!important;
+    border-style: solid; */
+}
+#tit-cat {
+    text-align: left !important;
+}
+#tit-cat, #bid-cont, #watch-cont {
+    padding:0% !important;
+    /* border-width: 3px !important;
+    border-color: blue!important;
+    border-style: solid; */
+}
+#watch-cont {
+    height: 100%;
+}
+#watch-cont button {
+    height: 60px;
+    width: 200px;
+}
+
+#list-desc {
+    font-size: large;
+    padding: 15px;
+    width: 100%;
+}
+
+#item {
+    font-size: 30px;
+    font-weight: 500;
+}
+#category {
+    font-size:20px;
+    font-weight: 500;
+    color: grey;
+}
+
+#body-div div {
+    border-width: 1px !important;
+    border-color: black !important;
+    border-style: solid;
 }
 
 .nav li a{color:white !important;}
@@ -66,8 +183,6 @@ img {
 }
 
 .img {
-    float: center;
-    width: 400px;
-    height: 400px;
-    object-fit: cover;
+    width: 100%;
+    height: 100%;
 }
