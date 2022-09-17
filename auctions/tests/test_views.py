@@ -123,10 +123,10 @@ class TestViews(TestCase):
         )
         response = self.client.get(self.watchlist_url)
         self.assertEquals(response.status_code, 200)
-        # should return watchlist page
-        self.assertTemplateUsed(response, "auctions/watchlist.html")
-        # should return a queryset of all items in user watchlist
-        self.assertQuerysetEqual(response.context['watchlist'], Watchlist.objects.filter(user=self.user1))
+        # should return index page
+        self.assertTemplateUsed(response, "auctions/index.html")
+        # should return a list of all items in user watchlist
+        self.assertEquals(response.context['listings'], [self.listing1])
 
     def test_user_listings_GET(self):
         # log in user
