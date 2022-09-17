@@ -24,8 +24,8 @@ class TestViews(TestCase):
             seller=self.user1,
             category=self.category1
         )
-        self.listing_url = reverse('listing', args=['0'])
-        self.category_url = reverse('category', args=[0])
+        self.listing_url = reverse('listing', args=[self.listing1.id])
+        self.category_url = reverse('category', args=[self.category1.id])
         self.watchlist_url = reverse('watchlist')
         self.user_listings_url = reverse('user listings')
         self.index_url = reverse('index')
@@ -106,13 +106,12 @@ class TestViews(TestCase):
 
     def test_category_GET(self):
         # represents a search for items by category
-        search_category_url = reverse('category', args=[0])
         response = self.client.get(self.category_url)
         self.assertEquals(response.status_code, 200)
         # should return index page
         self.assertTemplateUsed(response, "auctions/index.html")
         # should return queryset with all Listings in 0 category
-        self.assertQuerysetEqual(response.context['listings'], Listing.objects.filter(category=Category.objects.first()))
+        self.assertQuerysetEqual(response.context['listings'], Listing.objects.filter(category=self.category1))
 
     def test_watchlist_GET(self):
         # log in user
