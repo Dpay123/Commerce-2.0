@@ -115,21 +115,35 @@ def listing(request, listing_id):
     # return method for GET request or POST (not logged in)
     return render(request, "auctions/listing.html", context)
 
+def index(request):
+    listings = Listing.objects.all()
+    context = {
+        "listings": listings,
+        "title": "Active Listings"
+    }
+    return render(request, "auctions/index.html", context)
+
 def search_category(request, category_id):
     listings = Listing.objects.filter(category = category_id)
+    category = str(Category.objects.get(id = category_id))
     context = {
-        "listings": listings
+        "listings": listings,
+        "title": f"Category: {category}"
     }
     return render(request, "auctions/index.html", context)
 
 @login_required
 def watchlist(request):
     user = request.user
-    watched_items = user.watchlist.filter(user_id = user)
+    watched_items = Watchlist.objects.filter(user_id = user)
+    listings = []
+    for i in watched_items:
+        listings.append(i.listing)
     context = {
-        "watchlist": watched_items
+        "listings": listings,
+        "title": "Watched Items"
     }
-    return render(request, "auctions/watchlist.html", context)
+    return render(request, "auctions/index.html", context)
 
 @login_required
 def user_listings(request):
@@ -139,13 +153,6 @@ def user_listings(request):
         "user_listings": user_listings
     }
     return render(request, "auctions/user_listings.html", context)
-
-def index(request):
-    listings = Listing.objects.all()
-    context = {
-        "listings": listings
-    }
-    return render(request, "auctions/index.html", context)
 
 @login_required
 def create(request):
