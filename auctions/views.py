@@ -116,7 +116,7 @@ def listing(request, listing_id):
     return render(request, "auctions/listing.html", context)
 
 def search_category(request, category_id):
-    listings = Listing.objects.filter(id = category_id)
+    listings = Listing.objects.filter(category = category_id)
     context = {
         "listings": listings
     }
