@@ -9,7 +9,7 @@ body {
     max-width: 1200px;
 }
 
-#body-left-div, #mid-div, #bot-div {
+#body-left-div, #body-right-div, #mid-div, #bot-div {
     padding:0% !important;
     height: fit-content !important;
     max-width: 800px;
@@ -38,6 +38,23 @@ body {
     padding:0% !important;
     background-color: whitesmoke;
     text-align: center;
+}
+
+#watched-heading {
+    margin-top: 40px;
+    background-color: whitesmoke;
+    border-style: solid;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: x-large;
+    justify-content: center;
+}
+
+#watched-listings {
+    width: 100%;
+    padding: 0% !important;
+    margin-top: 10px;
+    margin-bottom: 40px;
 }
 
 #com-title {
@@ -135,6 +152,25 @@ body {
     margin: 5px;
 }
 
+#mini-card {
+    position: relative;
+    width: 250px;
+    height: 320px;
+    border: 2px solid black;
+    border-radius: 5px;
+    margin: 5px;
+}
+
+#mini-card img {
+    height: 50%;
+    width: 100%;
+}
+
+#mini-card-title {
+    text-align: left;
+    font-size: 20px;
+}
+
 .card-body {
     overflow: hidden;
 }
@@ -150,6 +186,10 @@ body {
 }
 
 .card-footer {
+    font-weight: bold;
+}
+
+.mini-card-footer {
     font-weight: bold;
 }
 

@@ -71,7 +71,7 @@ def listing(request, listing_id):
     # add similar watched items if watched
     if watched:
         similar_watched = get_shared_watched_items(user, listing)
-        context["similar_watched"] = similar_watched
+        context["listings"] = similar_watched
 
     if request.method == "POST" and request.user.is_authenticated:
 

@@ -3,7 +3,7 @@
 
 {% block body %}
 
-<div class="d-flex p-2 flex-row justify-content-between" id="body-div">
+<div class="d-flex p-2 flex-column" id="body-div">
 
     <div class="d-flex flex-column" id="body-left-div">
         
@@ -129,9 +129,14 @@
 
     </div>
 
+    {% if watched %}
     <div class="d-flex flex-column" id="body-right-div">
-        Right content
+        <div class="d-flex p-2" id="watched-heading">Users who watched this item also watched these items</div>
+        <div class="d-flex p-2 justify-content-between" id="watched-listings">
+            {% include 'auctions/mini-card.html' %}
+        </div>
     </div>
+    {% endif %}
 
 </div>
 {% endblock %}
