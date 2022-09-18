@@ -4,10 +4,13 @@ body {
     background-color: lightgray;
 }
 
-/* TEMPORARY */
-#body-div, #mid-div, #bot-div {
+#body-div {
+    padding: 0% !important;
+    max-width: 1200px;
+}
+
+#body-left-div, #mid-div, #bot-div {
     padding:0% !important;
-    border: none !important;
     height: fit-content !important;
     max-width: 800px;
 }
@@ -115,7 +118,7 @@ body {
     color: grey;
 }
 
-#body-div div {
+#body-left-div div {
     border-width: 1px !important;
     border-color: black !important;
     border-style: solid;
