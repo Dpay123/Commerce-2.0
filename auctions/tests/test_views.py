@@ -34,6 +34,57 @@ class TestViews(TestCase):
         self.logout_url = reverse('logout')
         self.register_url = reverse('register')
         
+    def test_get_shared_watched_items(self):
+        # test will simulate user 2 as user
+        # user 1 will have watched listing1 and 3 other listings
+        # user 2 should be presented with a list of those 3 other listings
+
+        # user2 and user1 are both watching listing1 - criteria for testing the function
+        Watchlist.objects.create(
+            user=self.user1,
+            listing=self.listing1
+        )
+        Watchlist.objects.create(
+            user=self.user2,
+            listing=self.listing1
+        )
+        # create 3 more test listings
+        self.listing2 = Listing.objects.create(
+            item='Item 2',
+            starting_bid=34.99,
+            seller=self.user2,
+            category=self.category1
+        )
+        self.listing3 = Listing.objects.create(
+            item='Item 3',
+            starting_bid=34.99,
+            seller=self.user2,
+            category=self.category1
+        )
+        self.listing4 = Listing.objects.create(
+            item='Item 4',
+            starting_bid=34.99,
+            seller=self.user2,
+            category=self.category1
+        )
+        # simulate user1 watching these listings
+        Watchlist.objects.create(
+            user=self.user1,
+            listing=self.listing2
+        )
+        Watchlist.objects.create(
+            user=self.user1,
+            listing=self.listing3
+        )
+        Watchlist.objects.create(
+            user=self.user1,
+            listing=self.listing4
+        )
+        # function call should return a list containing listings that user1 is watching
+        self.assertEquals(get_shared_watched_items(self.user2, self.listing1), [self.listing2, self.listing3, self.listing4])
+        # list of listings returned must not exceed 3
+        self.assertTrue(len(get_shared_watched_items(self.user2, self.listing1)) <= 3)
+
     def test_check_if_watched(self):
         # set listing1 watched by user1
         Watchlist.objects.create(
