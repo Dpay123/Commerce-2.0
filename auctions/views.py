@@ -9,6 +9,22 @@ from django.db import IntegrityError, transaction
 from .models import *
 from .forms import *
 
+# function that retrieves 3 similarly watched items "Users who watched this also watched __"
+def get_shared_watched_items(user, listing):
+    # get list of users that aren't current user AND watch this listing
+    users_watching_listing = Watchlist.objects.filter(listing=listing).exclude(user=user)
+    users = []
+    for watched_listing in users_watching_listing:
+        users.append(watched_listing.user.id)
+    # get distinct list of watchlist items that are watched by these users, excluding this listing
+    # limit list of listings to 3 results
+    other_watched_listings = Watchlist.objects.filter(user__in=users).exclude(listing=listing).distinct('listing')
+    listings = []
+    for other_listing in other_watched_listings:
+        if len(listings) < 3:
+            listings.append(other_listing.listing)
+    return listings
+
 def check_if_watched(user, listing):
     return user.watchlist.filter(listing = listing)
 
@@ -51,6 +67,11 @@ def listing(request, listing_id):
         "closed": listing.closed,
         "winner": winner
     }
+
+    # add similar watched items if watched
+    if watched:
+        similar_watched = get_shared_watched_items(user, listing)
+        context["similar_watched"] = similar_watched
 
     if request.method == "POST" and request.user.is_authenticated:
 
